@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <graphics/ShaderProgram.h>
+
 #include "GameWindow.h"
 
 namespace vulkangame {
@@ -14,5 +16,6 @@ namespace vulkangame {
 
     private:
         GameWindow gameWindow;
+        ShaderProgram simple_shader{"simple_shader"};
     };
 }
