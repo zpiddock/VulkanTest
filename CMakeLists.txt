@@ -47,6 +47,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vulkangame)
 add_shaders(shaders "simple_shader")
 add_dependencies(vulkangame shaders)
 
+install(TARGETS ${PROJECT_NAME} DESTINATION "./")
+install(TARGETS vulkangame)
+install(DIRECTORY assets DESTINATION "./")
+
 set(CPACK_PACKAGE_NAME "VulkanGame")
 set(CPACK_PACKAGE_VERSION "0.0.1")
 set(CPACK_GENERATOR "ZIP")
