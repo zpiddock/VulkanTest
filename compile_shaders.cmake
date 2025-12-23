@@ -4,8 +4,8 @@ function(add_shaders TARGET_NAME)
 
     message("CMAKE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}")
 
-    set(SHADER_FOLDER ${ARGN})
-    set(SHADER_OUT_FOLDER "${CMAKE_BINARY_DIR}/${PROJECT_NAME}/shaders")
+    set(SHADER_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/${ARGN}")
+    set(SHADER_OUT_FOLDER "${CMAKE_BINARY_DIR}/assets/shaders")
 
     file(GLOB SHADERS "${SHADER_FOLDER}/*.vert" "${SHADER_FOLDER}/*.frag")
 
@@ -15,7 +15,7 @@ function(add_shaders TARGET_NAME)
 
     foreach(SHADER ${SHADERS})
         get_filename_component(SHADER_NAME ${SHADER} NAME)
-        set(SHADER_OUT_NAME "${SHADER_OUT_FOLDER}/${SHADER_NAME}.spv")
+        set(SHADER_OUT_NAME "${SHADER_OUT_FOLDER}/${ARGN}/${SHADER_NAME}.spv")
         list(APPEND SHADER_OUT_NAMES ${SHADER_OUT_NAME})
         add_custom_command(
                 MAIN_DEPENDENCY ${SHADER}

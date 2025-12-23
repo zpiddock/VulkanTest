@@ -44,7 +44,7 @@ target_link_libraries(vulkangame PUBLIC glfw ${GLFW_LIBRARIES} Vulkan::Vulkan gl
 
 target_link_libraries(${PROJECT_NAME} PUBLIC vulkangame)
 
-add_shaders(shaders "${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/simple_shader")
+add_shaders(shaders "simple_shader")
 add_dependencies(vulkangame shaders)
 
 set(CPACK_PACKAGE_NAME "VulkanGame")
