@@ -28,6 +28,9 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(glm)
 
+# Setup shader compilation
+include(compile_shaders.cmake)
+
 add_library(vulkangame STATIC)
 
 add_subdirectory(vulkangame)
@@ -40,3 +43,13 @@ target_include_directories(vulkangame PUBLIC ${PROJECT_SOURCE_DIR}/ ${PROJECT_SO
 target_link_libraries(vulkangame PUBLIC glfw ${GLFW_LIBRARIES} Vulkan::Vulkan glm::glm)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC vulkangame)
+
+add_shaders(shaders "${CMAKE_CURRENT_SOURCE_DIR}/assets/shaders/simple_shader")
+add_dependencies(vulkangame shaders)
+
+set(CPACK_PACKAGE_NAME "VulkanGame")
+set(CPACK_PACKAGE_VERSION "0.0.1")
+set(CPACK_GENERATOR "ZIP")
+set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)
+set(CPACK_SOURCE_IGNORE_FILES "build")
+include(CPack)
