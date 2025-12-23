@@ -17,39 +17,39 @@
 
 namespace vulkangame {
 
-    GLFWwindow* window = nullptr;
+    GameWindow::GameWindow() {
 
-    GameWindow GameWindow::createInstance() {
-        return {};
+        createWindow();
     }
 
-    int GameWindow::createWindow() {
+    GameWindow::~GameWindow() {
+
+        destroy();
+    }
+
+    auto GameWindow::createWindow() -> int {
 
         glfwInit();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         window = glfwCreateWindow(800, 600, "vulkangame", nullptr, nullptr);
 
         if (window == nullptr) {
 
-            throw std::runtime_error("failed to create GLFW window");
+            throw std::runtime_error("Failed to create GLFW window!");
         }
 
-        uint32_t extensionCount = 0;
-
-        vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-        return 0;
+        return EXIT_SUCCESS;
     }
 
-    void GameWindow::destroy() {
+    auto GameWindow::destroy() -> void {
 
         glfwDestroyWindow(window);
 
         glfwTerminate();
     }
 
-    GLFWwindow* GameWindow::getWindowPtr() {
+    auto GameWindow::getWindowPtr() -> GLFWwindow* {
 
         return window;
     }

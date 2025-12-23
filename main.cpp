@@ -1,22 +1,22 @@
 #define GLFW_INCLUDE_VULKAN
 
-#include "vulkangame/GameWindow.h"
+#include <exception>
+#include <iostream>
 
-namespace vulkangame {
-}
+#include "GameProgram.h"
 
 int main() {
 
-    auto gameWindow = vulkangame::GameWindow::createInstance();
+    auto gameProgram = vulkangame::GameProgram{};
 
-    gameWindow.createWindow();
+    try {
 
-    //Gameloop
-    while(!glfwWindowShouldClose(gameWindow.getWindowPtr())) {
-        glfwPollEvents();
+        gameProgram.run();
+    }catch (std::exception& e) {
+
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
 
-    gameWindow.destroy();
-
-    return 0;
+    return EXIT_SUCCESS;
 }

@@ -2,22 +2,29 @@
 // Created by Admin on 22/12/2025.
 //
 
-#ifndef VULKANTEST_GAMEWINDOW_H
-#define VULKANTEST_GAMEWINDOW_H
+#pragma once
 #include "GLFW/glfw3.h"
 
 namespace vulkangame {
 
-
     class GameWindow {
 
-        public:
-        static GameWindow createInstance();
+    public:
+        GameWindow();
+        ~GameWindow();
 
-        int createWindow();
-        void destroy();
-        GLFWwindow* getWindowPtr();
+        GameWindow(const GameWindow&) = delete;
+        GameWindow &operator=(const GameWindow&) = delete;
+
+        auto shouldClose() -> bool { return ::glfwWindowShouldClose(window); }
+
+        auto getWindowPtr() -> GLFWwindow*;
+
+    private:
+        GLFWwindow* window = nullptr;
+
+        auto createWindow() -> int;
+
+        auto destroy() -> void;
     };
 } // vulkangame
-
-#endif //VULKANTEST_GAMEWINDOW_H
