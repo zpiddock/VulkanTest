@@ -31,7 +31,7 @@ FetchContent_MakeAvailable(glm)
 # Setup shader compilation
 include(compile_shaders.cmake)
 
-add_library(vulkangame STATIC)
+add_library(vulkangame SHARED)
 
 add_subdirectory(vulkangame)
 
@@ -48,8 +48,9 @@ add_shaders(shaders "simple_shader")
 add_dependencies(vulkangame shaders)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "./")
-install(TARGETS vulkangame)
-install(DIRECTORY assets DESTINATION "./")
+install(TARGETS vulkangame DESTINATION "./")
+# TODO: change to standard assets once runtime compilation is added
+install(DIRECTORY "${CMAKE_BINARY_DIR}/assets" DESTINATION "./")
 
 set(CPACK_PACKAGE_NAME "VulkanGame")
 set(CPACK_PACKAGE_VERSION "0.0.1")
