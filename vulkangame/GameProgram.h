@@ -16,7 +16,11 @@ namespace vulkangame {
 
     private:
         GameWindow gameWindow;
-        ShaderPipeline simple_shader{"simple_shader"};
-        // ShaderProgram simple_shader{"simple_shader"};
+        VulkanDevice vulkanDevice{gameWindow};
+        ShaderPipeline simple_shader{
+            vulkanDevice,
+            "simple_shader",
+            ShaderPipeline::defaultPipelineConfigInfo(800, 600)
+        };
     };
 }
