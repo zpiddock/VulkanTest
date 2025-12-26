@@ -21,6 +21,8 @@ namespace vulkangame {
 
         auto shouldClose() -> bool { return ::glfwWindowShouldClose(window); }
 
+        auto getExtent() -> VkExtent2D { return {static_cast<uint32_t>(800), static_cast<uint32_t>(600)}; };
+
         auto createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) -> void;
 
         auto getWindowPtr() -> GLFWwindow*;

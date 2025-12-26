@@ -13,7 +13,7 @@ namespace vulkangame {
 
     ShaderPipeline::ShaderPipeline(VulkanDevice& device,
         const std::string& shaderPipelinePath,
-        const PipelineConfigInfo& configInfo) : device(device) {
+        const PipelineConfigInfo& configInfo) : vulkanDevice(device) {
 
         // Eventually we will runtime compile, for now we use the existing compiled shaders
         createGraphicsPipeline(shaderPipelinePath, configInfo);
@@ -21,9 +21,9 @@ namespace vulkangame {
 
     ShaderPipeline::~ShaderPipeline() {
 
-        ::vkDestroyShaderModule(device.device(), vertModule, nullptr);
-        ::vkDestroyShaderModule(device.device(), fragModule, nullptr);
-        ::vkDestroyPipeline(device.device(), pipeline, nullptr);
+        ::vkDestroyShaderModule(vulkanDevice.device(), vertModule, nullptr);
+        ::vkDestroyShaderModule(vulkanDevice.device(), fragModule, nullptr);
+        ::vkDestroyPipeline(vulkanDevice.device(), pipeline, nullptr);
     }
 
     auto ShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::vector<char> {
@@ -68,9 +68,9 @@ namespace vulkangame {
         shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
         shaderStages[1].module = fragModule;
         shaderStages[1].pName = "main";
-        shaderStages[0].flags = 0;
-        shaderStages[0].pNext = nullptr;
-        shaderStages[0].pSpecializationInfo = nullptr;
+        shaderStages[1].flags = 0;
+        shaderStages[1].pNext = nullptr;
+        shaderStages[1].pSpecializationInfo = nullptr;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -79,17 +79,25 @@ namespace vulkangame {
         vertexInputInfo.pVertexAttributeDescriptions = nullptr;
         vertexInputInfo.pVertexBindingDescriptions = nullptr;
 
+        VkPipelineViewportStateCreateInfo viewportInfo{};
+
+        viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewportInfo.viewportCount = 1;
+        viewportInfo.pViewports = &configInfo.viewport;
+        viewportInfo.scissorCount = 1;
+        viewportInfo.pScissors = &configInfo.scissor;
+
         VkGraphicsPipelineCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         createInfo.stageCount = 2;
         createInfo.pStages = shaderStages;
         createInfo.pVertexInputState = &vertexInputInfo;
         createInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-        createInfo.pViewportState = &configInfo.viewportInfo;
+        createInfo.pViewportState = &viewportInfo;
         createInfo.pRasterizationState = &configInfo.rasterizationInfo;
-        createInfo.pDepthStencilState = &configInfo.depthStencilInfo;
         createInfo.pMultisampleState = &configInfo.multisampleInfo;
         createInfo.pColorBlendState = &configInfo.colorBlendInfo;
+        createInfo.pDepthStencilState = &configInfo.depthStencilInfo;
         createInfo.pDynamicState = nullptr;
 
         createInfo.layout = configInfo.pipelineLayout;
@@ -99,12 +107,20 @@ namespace vulkangame {
         createInfo.basePipelineIndex = -1;
         createInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (::vkCreateGraphicsPipelines(device.device(),
+        if (::vkCreateGraphicsPipelines(
+            vulkanDevice.device(),
             VK_NULL_HANDLE,
-            1, &createInfo,
-            nullptr, &pipeline) != VK_SUCCESS) {
+            1,
+            &createInfo,
+            nullptr,
+            &pipeline) != VK_SUCCESS) {
             throw std::runtime_error("Failed to create pipeline");
         }
+    }
+
+    auto ShaderPipeline::bind(VkCommandBuffer buffer) -> void {
+
+        ::vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
     auto ShaderPipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height) -> PipelineConfigInfo {
@@ -123,12 +139,6 @@ namespace vulkangame {
 
         configInfo.scissor.offset = {0, 0};
         configInfo.scissor.extent = {width, height};
-
-        configInfo.viewportInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        configInfo.viewportInfo.viewportCount = 1;
-        configInfo.viewportInfo.pViewports = &configInfo.viewport;
-        configInfo.viewportInfo.scissorCount = 1;
-        configInfo.viewportInfo.pScissors = &configInfo.scissor;
 
         configInfo.rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
         configInfo.rasterizationInfo.depthClampEnable = VK_FALSE;
@@ -184,14 +194,14 @@ namespace vulkangame {
         return configInfo;
     }
 
-    auto ShaderPipeline::createShaderModule(const std::vector<char> &shaderCode, VkShaderModule*shaderModule) -> void {
+    auto ShaderPipeline::createShaderModule(const std::vector<char> &shaderCode, VkShaderModule* shaderModule) -> void {
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = shaderCode.size();
         createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
 
-        if (::vkCreateShaderModule(device.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
+        if (::vkCreateShaderModule(vulkanDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
 
             throw std::runtime_error("Failed to create shader module");
         }

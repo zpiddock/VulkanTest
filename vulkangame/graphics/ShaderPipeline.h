@@ -11,7 +11,6 @@ namespace vulkangame {
 
         VkViewport viewport;
         VkRect2D scissor;
-        VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
         VkPipelineMultisampleStateCreateInfo multisampleInfo;
@@ -32,6 +31,7 @@ namespace vulkangame {
             ShaderPipeline(const ShaderPipeline&) = delete;
             void operator=(const ShaderPipeline&) = delete;
 
+            auto bind(VkCommandBuffer buffer) -> void;
             static auto defaultPipelineConfigInfo(uint32_t width, uint32_t height) -> PipelineConfigInfo;
 
         private:
@@ -40,7 +40,7 @@ namespace vulkangame {
 
             auto createShaderModule(const std::vector<char>& shaderCode, VkShaderModule* shaderModule) -> void;
 
-            VulkanDevice& device;
+            VulkanDevice& vulkanDevice;
             VkPipeline pipeline;
             VkShaderModule vertModule;
             VkShaderModule fragModule;
