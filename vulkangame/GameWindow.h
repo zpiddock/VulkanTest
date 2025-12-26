@@ -3,6 +3,9 @@
 //
 
 #pragma once
+
+#include <vulkan/vulkan_core.h>
+
 #include "GLFW/glfw3.h"
 
 namespace vulkangame {
@@ -17,6 +20,8 @@ namespace vulkangame {
         GameWindow &operator=(const GameWindow&) = delete;
 
         auto shouldClose() -> bool { return ::glfwWindowShouldClose(window); }
+
+        auto createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) -> void;
 
         auto getWindowPtr() -> GLFWwindow*;
 

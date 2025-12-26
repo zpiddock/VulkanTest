@@ -1,3 +1,4 @@
 target_sources(vulkangame PUBLIC
-    ShaderProgram.cpp
+        ShaderPipeline.cpp
+        VulkanDevice.cpp
 )

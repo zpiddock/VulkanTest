@@ -40,7 +40,7 @@ add_executable(${PROJECT_NAME}
 )
 
 target_include_directories(vulkangame PUBLIC ${PROJECT_SOURCE_DIR}/ ${PROJECT_SOURCE_DIR}/vulkangame)
-target_link_libraries(vulkangame PUBLIC glfw ${GLFW_LIBRARIES} Vulkan::Vulkan glm::glm)
+target_link_libraries(vulkangame PUBLIC glfw Vulkan::Vulkan glm::glm)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC vulkangame)
 

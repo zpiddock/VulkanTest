@@ -42,6 +42,14 @@ namespace vulkangame {
         return EXIT_SUCCESS;
     }
 
+    auto GameWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR*surface) -> void {
+
+        if (::glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
+
+            throw std::runtime_error("Failed to create GLFW window surface!");
+        }
+    }
+
     auto GameWindow::destroy() -> void {
 
         glfwDestroyWindow(window);
