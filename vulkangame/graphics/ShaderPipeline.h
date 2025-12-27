@@ -29,7 +29,7 @@ namespace vulkangame {
             ~ShaderPipeline();
 
             ShaderPipeline(const ShaderPipeline&) = delete;
-            void operator=(const ShaderPipeline&) = delete;
+            ShaderPipeline& operator=(const ShaderPipeline&) = delete;
 
             auto bind(VkCommandBuffer buffer) -> void;
             static auto defaultPipelineConfigInfo(uint32_t width, uint32_t height) -> PipelineConfigInfo;

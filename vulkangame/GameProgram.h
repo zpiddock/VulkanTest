@@ -6,6 +6,7 @@
 #include <bits/unique_ptr.h>
 #include <graphics/ShaderPipeline.h>
 #include <graphics/VulkanSwapChain.h>
+#include <graphics/models/BasicModel.h>
 
 #include "GameWindow.h"
 
@@ -23,6 +24,7 @@ namespace vulkangame {
         auto run() -> void;
 
     private:
+        auto loadModels() -> void;
         auto createPipeline() -> void;
         auto createPipelineLayout() -> void;
         auto createCommandBuffers() -> void;
@@ -37,10 +39,6 @@ namespace vulkangame {
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
 
-        // ShaderPipeline simple_shader{
-        //     vulkanDevice,
-        //     "simple_shader",
-        //     ShaderPipeline::defaultPipelineConfigInfo(800, 600)
-        // };
+        std::unique_ptr<BasicModel> model;
     };
 }

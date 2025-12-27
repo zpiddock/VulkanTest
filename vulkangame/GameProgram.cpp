@@ -12,6 +12,7 @@ namespace vulkangame {
 
     GameProgram::GameProgram() {
 
+        loadModels();
         createPipelineLayout();
         createPipeline();
         createCommandBuffers();
@@ -20,6 +21,17 @@ namespace vulkangame {
     GameProgram::~GameProgram() {
 
         ::vkDestroyPipelineLayout(vulkanDevice.device(), pipelineLayout, nullptr);
+    }
+
+    auto GameProgram::loadModels() -> void {
+
+        std::vector<BasicModel::Vertex> vertices = {
+            {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+            {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+            {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+        };
+
+        model = std::make_unique<BasicModel>(vulkanDevice, vertices);
     }
 
     auto GameProgram::createPipelineLayout() -> void {
@@ -95,7 +107,8 @@ namespace vulkangame {
             ::vkCmdBeginRenderPass(commandBuffers[i], &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             shaderPipeline->bind(commandBuffers[i]);
-            ::vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+            model->bind(commandBuffers[i]);
+            model->begin(commandBuffers[i]);
 
             ::vkCmdEndRenderPass(commandBuffers[i]);
             if (::vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
