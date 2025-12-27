@@ -4,7 +4,7 @@ build-debug:
 
 build-release: clean
 	cmake -G "Ninja Multi-Config" -S ./ -B build && \
-	cmake --build build --target VulkanTest --config release
+	cmake --build build --target all --config release
 
 packRelease: build-release
 	cd build && \

@@ -122,24 +122,16 @@ add_custom_command(TARGET vulkangame POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE_DIR:shaderc_shared>/$<TARGET_FILE_NAME:shaderc_shared>"
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-)
-
 add_shaders(shaders "simple_shader")
 add_dependencies(vulkangame shaders)
 
 # Optionally include shaderc DLL for runtime
-install(FILES ${shaderc_BINARY_DIR}/libshaderc/${CMAKE_BUILD_TYPE}/libshaderc_shared.dll
+install(FILES "$<TARGET_FILE:shaderc_shared>"
         DESTINATION bin)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "./")
 install(TARGETS vulkangame DESTINATION "./")
-# TODO: change to standard assets once runtime compilation is added
-install(DIRECTORY "${CMAKE_BINARY_DIR}/assets" DESTINATION "./")
-install(DIRECTORY "assets" DESTINATION "./")
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/assets" DESTINATION "./assets")
 
 set(CPACK_PACKAGE_NAME "VulkanGame")
 set(CPACK_PACKAGE_VERSION "0.0.1")

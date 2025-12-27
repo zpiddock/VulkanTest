@@ -56,12 +56,12 @@ VkResult VulkanSwapChain::acquireNextImage(uint32_t *imageIndex) {
       1,
       &inFlightFences[currentFrame],
       VK_TRUE,
-      std::numeric_limits<uint64_t>::max());
+      UINT64_MAX);
 
   VkResult result = vkAcquireNextImageKHR(
       device.device(),
       swapChain,
-      std::numeric_limits<uint64_t>::max(),
+      UINT64_MAX,
       imageAvailableSemaphores[currentFrame],  // must be a not signaled semaphore
       VK_NULL_HANDLE,
       imageIndex);
@@ -107,7 +107,6 @@ VkResult VulkanSwapChain::submitCommandBuffers(
   VkSwapchainKHR swapChains[] = {swapChain};
   presentInfo.swapchainCount = 1;
   presentInfo.pSwapchains = swapChains;
-
   presentInfo.pImageIndices = imageIndex;
 
   auto result = vkQueuePresentKHR(device.presentQueue(), &presentInfo);
@@ -162,7 +161,7 @@ void VulkanSwapChain::createSwapChain() {
 
   createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-  if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+  if (::vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
   }
 
@@ -192,7 +191,7 @@ void VulkanSwapChain::createImageViews() {
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
 
-    if (vkCreateImageView(device.device(), &viewInfo, nullptr, &swapChainImageViews[i]) !=
+    if (::vkCreateImageView(device.device(), &viewInfo, nullptr, &swapChainImageViews[i]) !=
         VK_SUCCESS) {
       throw std::runtime_error("failed to create texture image view!");
     }
@@ -263,7 +262,7 @@ void VulkanSwapChain::createRenderPass() {
 void VulkanSwapChain::createFramebuffers() {
   swapChainFramebuffers.resize(imageCount());
   for (size_t i = 0; i < imageCount(); i++) {
-    std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageViews[i]};
+    std::array attachments = {swapChainImageViews[i], depthImageViews[i]};
 
     VkExtent2D swapChainExtent = getSwapChainExtent();
     VkFramebufferCreateInfo framebufferInfo = {};
@@ -412,4 +411,4 @@ VkFormat VulkanSwapChain::findDepthFormat() {
       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
 
-}  // namespace lve
+}  // namespace vulkangame
