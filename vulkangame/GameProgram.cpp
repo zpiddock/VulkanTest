@@ -4,15 +4,27 @@
 
 #include "GameProgram.h"
 
-#include <exception>
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+
+#include <GameObject.h>
 #include <iostream>
 #include <array>
+#include <cmake-build-release/_deps/glm-src/glm/gtc/constants.hpp>
+#include <glm/ext/scalar_constants.hpp>
 
 namespace vulkangame {
 
+    struct SimplePushConstantData {
+        glm::mat2 transform{1.f};
+        glm::vec2 offset;
+        alignas(16)glm::vec3 colour;
+    };
+
     GameProgram::GameProgram() {
 
-        loadModels();
+        loadObjects();
         createPipelineLayout();
         recreateSwapChain();
         createCommandBuffers();
@@ -23,7 +35,7 @@ namespace vulkangame {
         ::vkDestroyPipelineLayout(vulkanDevice.device(), pipelineLayout, nullptr);
     }
 
-    auto GameProgram::loadModels() -> void {
+    auto GameProgram::loadObjects() -> void {
 
         std::vector<BasicModel::Vertex> vertices = {
             {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
@@ -31,17 +43,31 @@ namespace vulkangame {
             {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
         };
 
-        model = std::make_unique<BasicModel>(vulkanDevice, vertices);
+        auto model = std::make_shared<BasicModel>(vulkanDevice, vertices);
+
+        auto triangle = GameObject::createGameObject();
+        triangle.model = model;
+        triangle.colour = {0.1f, 0.8f, 0.1f};
+        triangle.transform2d.translation.x = 0.2f;
+        triangle.transform2d.scale = {2.f, 0.5f};
+        triangle.transform2d.rotation = 0.25f * glm::two_pi<float>();
+
+        gameObjects.push_back(std::move(triangle));
     }
 
     auto GameProgram::createPipelineLayout() -> void {
+
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(SimplePushConstantData);
 
         VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
         pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutCreateInfo.setLayoutCount = 0;
         pipelineLayoutCreateInfo.pSetLayouts = nullptr;
-        pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-        pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
         if (::vkCreatePipelineLayout(
             vulkanDevice.device(),
@@ -133,7 +159,7 @@ namespace vulkangame {
         renderPassBeginInfo.renderArea.extent = vulkanSwapChain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clearValues{};
-        clearValues[0].color = { 0.1f, 0.1f, 0.1f, 1.0f };
+        clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
         clearValues[1].depthStencil = { 1.0f, 0 };
 
         renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
@@ -153,12 +179,37 @@ namespace vulkangame {
         ::vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
         shaderPipeline->bind(commandBuffers[imageIndex]);
-        model->bind(commandBuffers[imageIndex]);
-        model->begin(commandBuffers[imageIndex]);
+
+        rendergameObjects(commandBuffers[imageIndex]);
 
         ::vkCmdEndRenderPass(commandBuffers[imageIndex]);
         if (::vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS) {
             throw std::runtime_error("Failed to record command buffer!");
+        }
+    }
+
+    auto GameProgram::rendergameObjects(VkCommandBuffer commandBuffer) -> void {
+
+        shaderPipeline->bind(commandBuffer);
+
+        for (auto& obj : gameObjects) {
+
+            obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.01f, glm::two_pi<float>());
+
+            SimplePushConstantData push{};
+            push.offset = obj.transform2d.translation;
+            push.colour = obj.colour;
+            push.transform = obj.transform2d.mat2();
+
+            ::vkCmdPushConstants(commandBuffer,
+                pipelineLayout,
+                VK_SHADER_STAGE_VERTEX_BIT |
+                VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push);
+            obj.model->bind(commandBuffer);
+            obj.model->begin(commandBuffer);
         }
     }
 

@@ -3,6 +3,7 @@
 //
 
 #pragma once
+#include <GameObject.h>
 #include <bits/unique_ptr.h>
 #include <graphics/ShaderPipeline.h>
 #include <graphics/VulkanSwapChain.h>
@@ -24,7 +25,7 @@ namespace vulkangame {
         auto run() -> void;
 
     private:
-        auto loadModels() -> void;
+        auto loadObjects() -> void;
         auto createPipeline() -> void;
         auto createPipelineLayout() -> void;
         auto createCommandBuffers() -> void;
@@ -32,6 +33,7 @@ namespace vulkangame {
         auto drawFrame() -> void;
         auto recreateSwapChain() -> void;
         auto recordCommandBuffer(int imageIndex) -> void;
+        auto rendergameObjects(VkCommandBuffer commandBuffer) -> void;
 
         GameWindow gameWindow;
         VulkanDevice vulkanDevice{gameWindow};
@@ -41,6 +43,6 @@ namespace vulkangame {
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
 
-        std::unique_ptr<BasicModel> model;
+        std::vector<GameObject> gameObjects;
     };
 }
