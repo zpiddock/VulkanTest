@@ -35,10 +35,11 @@ namespace vulkangame {
             static auto defaultPipelineConfigInfo(uint32_t width, uint32_t height) -> PipelineConfigInfo;
 
         private:
-            static auto readFile(const std::string& shaderFilepath, const std::string& shaderType) -> std::vector<char>;
+            auto readFile(const std::string& shaderFilepath, const std::string& shaderType) -> std::string;
             auto createGraphicsPipeline(const std::string& shaderFilepath, const PipelineConfigInfo& configInfo) -> void;
 
-            auto createShaderModule(const std::vector<char>& shaderCode, VkShaderModule* shaderModule) -> void;
+            auto compileShader(const std::string& shaderFilepath, const std::string& shaderType) -> std::vector<uint32_t>;
+            auto createShaderModule(const std::vector<uint32_t>& shaderCode, VkShaderModule* shaderModule) -> void;
 
             VulkanDevice& vulkanDevice;
             VkPipeline pipeline;

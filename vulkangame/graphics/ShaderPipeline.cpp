@@ -7,7 +7,9 @@
 #include <string>
 #include <fstream>
 #include <filesystem>
+#include <format>
 #include <iostream>
+#include <shaderc/shaderc.hpp>
 
 namespace vulkangame {
 
@@ -26,32 +28,59 @@ namespace vulkangame {
         ::vkDestroyPipeline(vulkanDevice.device(), pipeline, nullptr);
     }
 
-    auto ShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::vector<char> {
+    auto ShaderPipeline::compileShader(
+        const std::string &shaderFilepath,
+        const std::string &shaderType) -> std::vector<uint32_t> {
+
+        std::string source = readFile(shaderFilepath, shaderType);
+
+        shaderc_shader_kind kind = {};
+
+        if (shaderType == "vert") kind = shaderc_vertex_shader;
+        if (shaderType == "frag") kind = shaderc_fragment_shader;
+
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+
+        options.SetOptimizationLevel(shaderc_optimization_level_performance);
+
+        shaderc::SpvCompilationResult module =
+            compiler.CompileGlslToSpv(source, kind, shaderFilepath.c_str(), options);
+
+        if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
+            throw std::runtime_error("Shader compilation failed (" + shaderFilepath + "): " +
+                                     module.GetErrorMessage());
+        }
+
+        std::cout << std::format("Compiled shader {} of type {}", shaderFilepath, shaderType) << "\n";
+
+        return std::vector(module.cbegin(), module.cend());
+    }
+
+    auto ShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::string {
 
         auto assetsDirectory = std::format("{}/assets/shaders", std::filesystem::current_path().string());
 
-        std::ifstream file(std::format("{}/{}/{}.{}.spv", assetsDirectory, shaderName, shaderName, shaderType),
-            std::ios::ate | std::ios::binary);
+        std::ifstream file(std::format("{}/{}/{}.{}", assetsDirectory, shaderName, shaderName, shaderType),
+            std::ios::in);
 
         if (!file.is_open()) {
 
-            throw std::runtime_error(std::format("Failed to open shader file {}", shaderName));
+            throw std::runtime_error("Failed to open shader file: " + shaderName);
         }
 
-        auto fileSize = static_cast<size_t>(file.tellg());
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-        file.close();
-
-        return buffer;
+        std::stringstream ss;
+        ss << file.rdbuf();
+        return ss.str();
     }
 
     auto ShaderPipeline::createGraphicsPipeline(const std::string &shaderFilepath, const PipelineConfigInfo &configInfo) -> void {
 
-        auto vertexCode = readFile(shaderFilepath, "vert");
-        auto fragmentCode = readFile(shaderFilepath,"frag");
+        // auto vertexCode = readFile(shaderFilepath, "vert");
+        // auto fragmentCode = readFile(shaderFilepath,"frag");
+
+        auto vertexCode = compileShader(shaderFilepath, "vert");
+        auto fragmentCode = compileShader(shaderFilepath, "frag");
 
         createShaderModule(vertexCode, &vertModule);
         createShaderModule(fragmentCode, &fragModule);
@@ -194,12 +223,12 @@ namespace vulkangame {
         return configInfo;
     }
 
-    auto ShaderPipeline::createShaderModule(const std::vector<char> &shaderCode, VkShaderModule* shaderModule) -> void {
+    auto ShaderPipeline::createShaderModule(const std::vector<uint32_t> &shaderCode, VkShaderModule* shaderModule) -> void {
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = shaderCode.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(shaderCode.data());
+        createInfo.codeSize = shaderCode.size() * sizeof(uint32_t);
+        createInfo.pCode = shaderCode.data();
 
         if (::vkCreateShaderModule(vulkanDevice.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
 
