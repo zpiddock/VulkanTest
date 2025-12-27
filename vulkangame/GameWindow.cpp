@@ -19,6 +19,8 @@ namespace vulkangame {
 
     GameWindow::GameWindow() {
 
+        width = 800;
+        height = 600;
         createWindow();
     }
 
@@ -29,15 +31,18 @@ namespace vulkangame {
 
     auto GameWindow::createWindow() -> int {
 
-        glfwInit();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        window = glfwCreateWindow(800, 600, "vulkangame", nullptr, nullptr);
+        ::glfwInit();
+        ::glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        ::glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        window = ::glfwCreateWindow(width, height, "vulkangame", nullptr, nullptr);
 
         if (window == nullptr) {
 
             throw std::runtime_error("Failed to create GLFW window!");
         }
+
+        ::glfwSetWindowUserPointer(window, this);
+        ::glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         return EXIT_SUCCESS;
     }
@@ -60,5 +65,13 @@ namespace vulkangame {
     auto GameWindow::getWindowPtr() -> GLFWwindow* {
 
         return window;
+    }
+
+    auto GameWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height) -> void {
+
+        auto gameWindow = reinterpret_cast<GameWindow*>(::glfwGetWindowUserPointer(window));
+        gameWindow->framebufferResized = true;
+        gameWindow->width = width;
+        gameWindow->height = height;
     }
 }

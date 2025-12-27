@@ -21,14 +21,25 @@ namespace vulkangame {
 
         auto shouldClose() -> bool { return ::glfwWindowShouldClose(window); }
 
-        auto getExtent() -> VkExtent2D { return {static_cast<uint32_t>(800), static_cast<uint32_t>(600)}; };
+        auto getExtent() -> VkExtent2D { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; };
+
+        auto wasWindowResized() -> bool { return framebufferResized; };
+
+        auto resetWindowResizedFlag() -> void { framebufferResized = false; };
 
         auto createWindowSurface(VkInstance instance, VkSurfaceKHR* surface) -> void;
 
         auto getWindowPtr() -> GLFWwindow*;
 
     private:
+
+        int width, height;
+
+        bool framebufferResized = false;
+
         GLFWwindow* window = nullptr;
+
+        static auto framebufferResizeCallback(GLFWwindow* window, int width, int height) -> void;
 
         auto createWindow() -> int;
 

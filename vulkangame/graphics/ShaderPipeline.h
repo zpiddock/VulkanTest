@@ -9,14 +9,20 @@ namespace vulkangame {
 
     struct PipelineConfigInfo {
 
-        VkViewport viewport;
-        VkRect2D scissor;
+        PipelineConfigInfo() = default;
+
+        PipelineConfigInfo(const PipelineConfigInfo& configInfo) = delete;
+        PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
+
+        VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
         VkPipelineMultisampleStateCreateInfo multisampleInfo;
         VkPipelineColorBlendAttachmentState colorBlendAttachment;
         VkPipelineColorBlendStateCreateInfo colorBlendInfo;
         VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        std::vector<VkDynamicState> dynamicStateEnables;
+        VkPipelineDynamicStateCreateInfo dynamicStateInfo;
         VkPipelineLayout pipelineLayout = nullptr;
         VkRenderPass renderPass = nullptr;
         uint32_t subpass = 0;
@@ -32,7 +38,7 @@ namespace vulkangame {
             ShaderPipeline& operator=(const ShaderPipeline&) = delete;
 
             auto bind(VkCommandBuffer buffer) -> void;
-            static auto defaultPipelineConfigInfo(uint32_t width, uint32_t height) -> PipelineConfigInfo;
+            static auto defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) -> void;
 
         private:
             auto readFile(const std::string& shaderFilepath, const std::string& shaderType) -> std::string;

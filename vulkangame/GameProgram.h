@@ -28,12 +28,14 @@ namespace vulkangame {
         auto createPipeline() -> void;
         auto createPipelineLayout() -> void;
         auto createCommandBuffers() -> void;
+        auto freeCommandBuffers() -> void;
         auto drawFrame() -> void;
+        auto recreateSwapChain() -> void;
+        auto recordCommandBuffer(int imageIndex) -> void;
 
         GameWindow gameWindow;
         VulkanDevice vulkanDevice{gameWindow};
-        VulkanSwapChain vulkanSwapChain{vulkanDevice, gameWindow.getExtent()};
-
+        std::unique_ptr<VulkanSwapChain> vulkanSwapChain;
         std::unique_ptr<ShaderPipeline> shaderPipeline;
 
         VkPipelineLayout pipelineLayout;
