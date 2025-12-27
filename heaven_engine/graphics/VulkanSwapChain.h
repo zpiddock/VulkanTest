@@ -10,7 +10,7 @@
 
 #include "VulkanDevice.h"
 
-namespace vulkangame {
+namespace heaven_engine {
     class VulkanSwapChain {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;

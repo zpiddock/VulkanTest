@@ -4,5 +4,5 @@
 
 #include "GameObject.h"
 
-namespace vulkangame {
-} // vulkangame
+namespace heaven_engine {
+} // heaven_engine

@@ -9,7 +9,7 @@
 
 #include <cassert>
 
-namespace vulkangame {
+namespace heaven_engine {
 
     BasicModel::BasicModel(VulkanDevice &device, const std::vector<Vertex> &vertices) : device{device} {
 
@@ -79,4 +79,4 @@ namespace vulkangame {
         memcpy(data, vertices.data(), bufferSize);
         ::vkUnmapMemory(device.device(), vertexBufferMemory);
     }
-} // vulkangame
+} // heaven_engine

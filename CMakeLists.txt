@@ -3,6 +3,9 @@ project(VulkanTest)
 
 set(CMAKE_CXX_STANDARD 26)
 
+# Engine / Game Names
+set(ENGINE_NAME heaven_engine)
+
 #Dependencies
 # Set Versions
 set(GLFW_VERSION 3.4)
@@ -83,21 +86,18 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(shaderc)
 
-# Setup shader compilation
-include(compile_shaders.cmake)
-
 # --------------------
 # Game library
 # --------------------
-add_library(vulkangame SHARED)
-add_subdirectory(vulkangame) # optional if you have a submodule
+add_library(${ENGINE_NAME} SHARED)
+add_subdirectory(heaven_engine) # optional if you have a submodule
 
-target_include_directories(vulkangame PUBLIC
+target_include_directories(${ENGINE_NAME} PUBLIC
         ${PROJECT_SOURCE_DIR}
-        ${PROJECT_SOURCE_DIR}/vulkangame
+        ${PROJECT_SOURCE_DIR}/heaven_engine
 )
 
-target_link_libraries(vulkangame PUBLIC
+target_link_libraries(${ENGINE_NAME} PUBLIC
         glfw
         Vulkan::Vulkan
         glm::glm
@@ -108,32 +108,29 @@ target_link_libraries(vulkangame PUBLIC
 # Main executable
 # --------------------
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} PUBLIC vulkangame)
+target_link_libraries(${PROJECT_NAME} PUBLIC ${ENGINE_NAME})
 
 # --------------------
 # Runtime Shaderc DLL copy
 # --------------------
-add_custom_command(TARGET vulkangame POST_BUILD
+add_custom_command(TARGET ${ENGINE_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "$<TARGET_FILE_DIR:shaderc_shared>/$<TARGET_FILE_NAME:shaderc_shared>"
-        $<TARGET_FILE_DIR:vulkangame>
+        $<TARGET_FILE_DIR:${ENGINE_NAME}>
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/assets"
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
-
-add_shaders(shaders "simple_shader")
-add_dependencies(vulkangame shaders)
 
 # Optionally include shaderc DLL for runtime
 install(FILES "$<TARGET_FILE:shaderc_shared>"
         DESTINATION bin)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "./")
-install(TARGETS vulkangame DESTINATION "./")
+install(TARGETS ${ENGINE_NAME} DESTINATION "./")
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/assets" DESTINATION "./assets")
 
-set(CPACK_PACKAGE_NAME "VulkanGame")
+set(CPACK_PACKAGE_NAME "heaven_engine")
 set(CPACK_PACKAGE_VERSION "0.0.1")
 set(CPACK_GENERATOR "ZIP")
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY OFF)

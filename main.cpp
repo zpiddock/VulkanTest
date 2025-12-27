@@ -7,7 +7,7 @@
 
 int main() {
 
-    auto gameProgram = vulkangame::GameProgram{};
+    auto gameProgram = heaven_engine::GameProgram{};
 
     try {
 

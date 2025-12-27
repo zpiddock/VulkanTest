@@ -10,7 +10,7 @@
 #include <vector>
 #include <vulkan/vulkan_core.h>
 
-namespace vulkangame {
+namespace heaven_engine {
 
 struct SwapChainSupportDetails {
   VkSurfaceCapabilitiesKHR capabilities;

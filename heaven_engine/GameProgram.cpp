@@ -11,10 +11,10 @@
 #include <GameObject.h>
 #include <iostream>
 #include <array>
-#include <cmake-build-release/_deps/glm-src/glm/gtc/constants.hpp>
-#include <glm/ext/scalar_constants.hpp>
 
-namespace vulkangame {
+#include <glm/gtc/constants.hpp>
+
+namespace heaven_engine {
 
     struct SimplePushConstantData {
         glm::mat2 transform{1.f};
@@ -249,4 +249,4 @@ namespace vulkangame {
 
         ::vkDeviceWaitIdle(vulkanDevice.device());
     }
-} // vulkangame
+} // heaven_engine

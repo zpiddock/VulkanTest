@@ -9,7 +9,7 @@
 
 #include <glm/glm.hpp>
 
-namespace vulkangame {
+namespace heaven_engine {
 
     struct Transform2dComponent {
         glm::vec2 translation{};
@@ -52,4 +52,4 @@ namespace vulkangame {
 
         id_t id;
     };
-} // vulkangame
+} // heaven_engine

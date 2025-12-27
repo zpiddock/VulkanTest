@@ -13,7 +13,7 @@
 
 #include "models/BasicModel.h"
 
-namespace vulkangame {
+namespace heaven_engine {
 
     ShaderPipeline::ShaderPipeline(VulkanDevice& device,
         const std::string& shaderPipelinePath,

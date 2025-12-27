@@ -15,7 +15,7 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace vulkangame {
+namespace heaven_engine {
 
     GameWindow::GameWindow() {
 
@@ -34,7 +34,7 @@ namespace vulkangame {
         ::glfwInit();
         ::glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         ::glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        window = ::glfwCreateWindow(width, height, "vulkangame", nullptr, nullptr);
+        window = ::glfwCreateWindow(width, height, "heaven_engine", nullptr, nullptr);
 
         if (window == nullptr) {
 

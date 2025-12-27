@@ -7,7 +7,7 @@
 #include <set>
 #include <stdexcept>
 
-namespace vulkangame {
+namespace heaven_engine {
   VulkanSwapChain::VulkanSwapChain(VulkanDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
     init();
@@ -423,4 +423,4 @@ namespace vulkangame {
       VK_IMAGE_TILING_OPTIMAL,
       VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
   }
-} // namespace vulkangame
+} // namespace heaven_engine

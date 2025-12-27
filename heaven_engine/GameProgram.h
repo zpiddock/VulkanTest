@@ -11,7 +11,7 @@
 
 #include "GameWindow.h"
 
-namespace vulkangame {
+namespace heaven_engine {
     class GameProgram {
 
     public:

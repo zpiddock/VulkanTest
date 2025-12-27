@@ -10,7 +10,7 @@
 #include <graphics/VulkanDevice.h>
 #include <vulkan/vulkan_core.h>
 
-namespace vulkangame {
+namespace heaven_engine {
 
     class BasicModel {
 

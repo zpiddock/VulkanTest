@@ -8,7 +8,7 @@
 
 #include "GLFW/glfw3.h"
 
-namespace vulkangame {
+namespace heaven_engine {
 
     class GameWindow {
 

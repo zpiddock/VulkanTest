@@ -1,6 +1,6 @@
 add_subdirectory(graphics)
 
-target_sources(vulkangame PUBLIC
+target_sources(${ENGINE_NAME} PUBLIC
         GameWindow.cpp
         GameProgram.cpp
         GameObject.cpp
