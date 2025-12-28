@@ -21,7 +21,7 @@ namespace heaven_engine {
         alignas(16)glm::vec3 colour;
     };
 
-    SimpleRenderSystem::SimpleRenderSystem(VulkanDevice& device, VkRenderPass renderPass) : vulkanDevice{device} {
+    SimpleRenderSystem::SimpleRenderSystem(HeavenVkDevice& device, VkRenderPass renderPass) : vulkanDevice{device} {
 
         createPipelineLayout();
         createPipeline(renderPass);
@@ -58,11 +58,11 @@ namespace heaven_engine {
     auto SimpleRenderSystem::createPipeline(VkRenderPass renderPass) -> void {
 
         PipelineConfigInfo pipelineConfig{};
-        ShaderPipeline::defaultPipelineConfigInfo(pipelineConfig);
+        HeavenShaderPipeline::defaultPipelineConfigInfo(pipelineConfig);
         pipelineConfig.renderPass = renderPass;
         pipelineConfig.pipelineLayout = pipelineLayout;
 
-        shaderPipeline = std::make_unique<ShaderPipeline>(
+        shaderPipeline = std::make_unique<HeavenShaderPipeline>(
             vulkanDevice,
             "simple_shader",
             pipelineConfig);

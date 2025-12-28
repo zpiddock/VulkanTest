@@ -2,7 +2,7 @@
 // Created by Admin on 23/12/2025.
 //
 
-#include "ShaderPipeline.h"
+#include "HeavenShaderPipeline.h"
 
 #include <string>
 #include <fstream>
@@ -15,7 +15,7 @@
 
 namespace heaven_engine {
 
-    ShaderPipeline::ShaderPipeline(VulkanDevice& device,
+    HeavenShaderPipeline::HeavenShaderPipeline(HeavenVkDevice& device,
         const std::string& shaderPipelinePath,
         const PipelineConfigInfo& configInfo) : vulkanDevice(device) {
 
@@ -23,14 +23,14 @@ namespace heaven_engine {
         createGraphicsPipeline(shaderPipelinePath, configInfo);
     }
 
-    ShaderPipeline::~ShaderPipeline() {
+    HeavenShaderPipeline::~HeavenShaderPipeline() {
 
         ::vkDestroyShaderModule(vulkanDevice.device(), vertModule, nullptr);
         ::vkDestroyShaderModule(vulkanDevice.device(), fragModule, nullptr);
         ::vkDestroyPipeline(vulkanDevice.device(), pipeline, nullptr);
     }
 
-    auto ShaderPipeline::compileShader(
+    auto HeavenShaderPipeline::compileShader(
         const std::string &shaderFilepath,
         const std::string &shaderType) -> std::vector<uint32_t> {
 
@@ -59,7 +59,7 @@ namespace heaven_engine {
         return std::vector(module.cbegin(), module.cend());
     }
 
-    auto ShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::string {
+    auto HeavenShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::string {
 
         auto assetsDirectory = std::format("{}/assets/shaders", std::filesystem::current_path().string());
 
@@ -76,7 +76,7 @@ namespace heaven_engine {
         return ss.str();
     }
 
-    auto ShaderPipeline::createGraphicsPipeline(const std::string &shaderFilepath, const PipelineConfigInfo &configInfo) -> void {
+    auto HeavenShaderPipeline::createGraphicsPipeline(const std::string &shaderFilepath, const PipelineConfigInfo &configInfo) -> void {
 
         // auto vertexCode = readFile(shaderFilepath, "vert");
         // auto fragmentCode = readFile(shaderFilepath,"frag");
@@ -145,12 +145,12 @@ namespace heaven_engine {
         }
     }
 
-    auto ShaderPipeline::bind(VkCommandBuffer buffer) -> void {
+    auto HeavenShaderPipeline::bind(VkCommandBuffer buffer) -> void {
 
         ::vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     }
 
-    auto ShaderPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) -> void {
+    auto HeavenShaderPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) -> void {
 
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -221,7 +221,7 @@ namespace heaven_engine {
         configInfo.dynamicStateInfo.flags = 0;
     }
 
-    auto ShaderPipeline::createShaderModule(const std::vector<uint32_t> &shaderCode, VkShaderModule* shaderModule) -> void {
+    auto HeavenShaderPipeline::createShaderModule(const std::vector<uint32_t> &shaderCode, VkShaderModule* shaderModule) -> void {
 
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "VulkanDevice.h"
+#include "HeavenVkDevice.h"
 
 namespace heaven_engine {
 
@@ -28,14 +28,14 @@ namespace heaven_engine {
         uint32_t subpass = 0;
     };
 
-    class ShaderPipeline {
+    class HeavenShaderPipeline {
 
         public:
-            ShaderPipeline(VulkanDevice& device, const std::string& shaderPipelinePath, const PipelineConfigInfo& configInfo);
-            ~ShaderPipeline();
+            HeavenShaderPipeline(HeavenVkDevice& device, const std::string& shaderPipelinePath, const PipelineConfigInfo& configInfo);
+            ~HeavenShaderPipeline();
 
-            ShaderPipeline(const ShaderPipeline&) = delete;
-            ShaderPipeline& operator=(const ShaderPipeline&) = delete;
+            HeavenShaderPipeline(const HeavenShaderPipeline&) = delete;
+            HeavenShaderPipeline& operator=(const HeavenShaderPipeline&) = delete;
 
             auto bind(VkCommandBuffer buffer) -> void;
             static auto defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) -> void;
@@ -47,7 +47,7 @@ namespace heaven_engine {
             auto compileShader(const std::string& shaderFilepath, const std::string& shaderType) -> std::vector<uint32_t>;
             auto createShaderModule(const std::vector<uint32_t>& shaderCode, VkShaderModule* shaderModule) -> void;
 
-            VulkanDevice& vulkanDevice;
+            HeavenVkDevice& vulkanDevice;
             VkPipeline pipeline;
             VkShaderModule vertModule;
             VkShaderModule fragModule;

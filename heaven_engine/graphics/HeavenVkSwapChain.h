@@ -8,23 +8,23 @@
 #include <string>
 #include <vector>
 
-#include "VulkanDevice.h"
+#include "HeavenVkDevice.h"
 
 namespace heaven_engine {
-    class VulkanSwapChain {
+    class HeavenVkSwapChain {
     public:
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
-        VulkanSwapChain(VulkanDevice &deviceRef, VkExtent2D windowExtent);
+        HeavenVkSwapChain(HeavenVkDevice &deviceRef, VkExtent2D windowExtent);
 
-        VulkanSwapChain(VulkanDevice &deviceRef, VkExtent2D windowExtent,
-                        std::shared_ptr<VulkanSwapChain> previousSwapChain);
+        HeavenVkSwapChain(HeavenVkDevice &deviceRef, VkExtent2D windowExtent,
+                        std::shared_ptr<HeavenVkSwapChain> previousSwapChain);
 
-        ~VulkanSwapChain();
+        ~HeavenVkSwapChain();
 
-        VulkanSwapChain(const VulkanSwapChain &) = delete;
+        HeavenVkSwapChain(const HeavenVkSwapChain &) = delete;
 
-        VulkanSwapChain &operator=(const VulkanSwapChain &) = delete;
+        HeavenVkSwapChain &operator=(const HeavenVkSwapChain &) = delete;
 
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkRenderPass getRenderPass() { return renderPass; }
@@ -45,7 +45,7 @@ namespace heaven_engine {
 
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
-        auto compareSwapFormats(const VulkanSwapChain& swapChain) const -> bool {
+        auto compareSwapFormats(const HeavenVkSwapChain& swapChain) const -> bool {
             return swapChainImageFormat == swapChain.swapChainImageFormat &&
                 swapChainDepthFormat == swapChain.swapChainDepthFormat;
         };
@@ -87,11 +87,11 @@ namespace heaven_engine {
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
 
-        VulkanDevice &device;
+        HeavenVkDevice &device;
         VkExtent2D windowExtent;
 
         VkSwapchainKHR swapChain;
-        std::shared_ptr<VulkanSwapChain> oldSwapChain;
+        std::shared_ptr<HeavenVkSwapChain> oldSwapChain;
 
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;

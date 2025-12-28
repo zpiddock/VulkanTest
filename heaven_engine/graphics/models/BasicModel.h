@@ -7,7 +7,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
-#include <graphics/VulkanDevice.h>
+#include <graphics/HeavenVkDevice.h>
 #include <vulkan/vulkan_core.h>
 
 namespace heaven_engine {
@@ -24,7 +24,7 @@ namespace heaven_engine {
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
 
-        BasicModel(VulkanDevice& device, const std::vector<Vertex>& vertices);
+        BasicModel(HeavenVkDevice& device, const std::vector<Vertex>& vertices);
         ~BasicModel();
 
         BasicModel(const BasicModel&) = delete;
@@ -36,7 +36,7 @@ namespace heaven_engine {
     private:
         auto createVertexBuffer(const std::vector<Vertex>& vertices) -> void;
 
-        VulkanDevice& device;
+        HeavenVkDevice& device;
         VkBuffer vertexBuffer;
         VkDeviceMemory vertexBufferMemory;
         uint32_t vertexCount;

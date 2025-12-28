@@ -6,8 +6,8 @@
 #include <bits/unique_ptr.h>
 #include <graphics/models/BasicModel.h>
 
-#include "GameWindow.h"
-#include "VulkanSwapChain.h"
+#include "HeavenWindow.h"
+#include "HeavenVkSwapChain.h"
 
 namespace heaven_engine {
 
@@ -15,7 +15,7 @@ namespace heaven_engine {
 
     public:
 
-        HeavenRenderer(GameWindow& window, VulkanDevice& device);
+        HeavenRenderer(HeavenWindow& window, HeavenVkDevice& device);
         ~HeavenRenderer();
 
         HeavenRenderer(const HeavenRenderer&) = delete;
@@ -49,9 +49,9 @@ namespace heaven_engine {
         auto freeCommandBuffers() -> void;
         auto recreateSwapChain() -> void;
 
-        GameWindow& gameWindow;
-        VulkanDevice& vulkanDevice;
-        std::unique_ptr<VulkanSwapChain> vulkanSwapChain;
+        HeavenWindow& gameWindow;
+        HeavenVkDevice& vulkanDevice;
+        std::unique_ptr<HeavenVkSwapChain> vulkanSwapChain;
         std::vector<VkCommandBuffer> commandBuffers;
 
         uint32_t currentImageIndex{0};

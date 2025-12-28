@@ -8,8 +8,8 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
-#include <GameObject.h>
-#include <graphics/SimpleRenderSystem.h>
+#include <../heaven_engine/GameObject.h>
+#include <../heaven_engine/graphics/SimpleRenderSystem.h>
 
 #include <glm/gtc/constants.hpp>
 

@@ -2,7 +2,7 @@
 // Created by Admin on 22/12/2025.
 //
 
-#include "GameWindow.h"
+#include "HeavenWindow.h"
 
 #include <cstdio>
 #include <vector>
@@ -17,19 +17,19 @@
 
 namespace heaven_engine {
 
-    GameWindow::GameWindow() {
+    HeavenWindow::HeavenWindow() {
 
         width = 800;
         height = 600;
         createWindow();
     }
 
-    GameWindow::~GameWindow() {
+    HeavenWindow::~HeavenWindow() {
 
         destroy();
     }
 
-    auto GameWindow::createWindow() -> int {
+    auto HeavenWindow::createWindow() -> int {
 
         ::glfwInit();
         ::glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -47,7 +47,7 @@ namespace heaven_engine {
         return EXIT_SUCCESS;
     }
 
-    auto GameWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR*surface) -> void {
+    auto HeavenWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR*surface) -> void {
 
         if (::glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS) {
 
@@ -55,21 +55,21 @@ namespace heaven_engine {
         }
     }
 
-    auto GameWindow::destroy() -> void {
+    auto HeavenWindow::destroy() -> void {
 
         glfwDestroyWindow(window);
 
         glfwTerminate();
     }
 
-    auto GameWindow::getWindowPtr() -> GLFWwindow* {
+    auto HeavenWindow::getWindowPtr() -> GLFWwindow* {
 
         return window;
     }
 
-    auto GameWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height) -> void {
+    auto HeavenWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height) -> void {
 
-        auto gameWindow = reinterpret_cast<GameWindow*>(::glfwGetWindowUserPointer(window));
+        auto gameWindow = reinterpret_cast<HeavenWindow*>(::glfwGetWindowUserPointer(window));
         gameWindow->framebufferResized = true;
         gameWindow->width = width;
         gameWindow->height = height;

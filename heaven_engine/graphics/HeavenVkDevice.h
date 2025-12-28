@@ -3,7 +3,7 @@
 //
 #pragma once
 
-#include "GameWindow.h"
+#include "HeavenWindow.h"
 
 // std lib headers
 #include <string>
@@ -26,7 +26,7 @@ struct QueueFamilyIndices {
   bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
 };
 
-class VulkanDevice {
+class HeavenVkDevice {
  public:
 #ifdef NDEBUG
   const bool enableValidationLayers = false;
@@ -34,14 +34,14 @@ class VulkanDevice {
   const bool enableValidationLayers = true;
 #endif
 
-  VulkanDevice(GameWindow &window);
-  ~VulkanDevice();
+  HeavenVkDevice(HeavenWindow &window);
+  ~HeavenVkDevice();
 
   // Not copyable or movable
-  VulkanDevice(const VulkanDevice &) = delete;
-  VulkanDevice& operator=(const VulkanDevice &) = delete;
-  VulkanDevice(VulkanDevice &&) = delete;
-  VulkanDevice &operator=(VulkanDevice &&) = delete;
+  HeavenVkDevice(const HeavenVkDevice &) = delete;
+  HeavenVkDevice& operator=(const HeavenVkDevice &) = delete;
+  HeavenVkDevice(HeavenVkDevice &&) = delete;
+  HeavenVkDevice &operator=(HeavenVkDevice &&) = delete;
 
   VkCommandPool getCommandPool() { return commandPool; }
   VkDevice device() { return device_; }
@@ -97,7 +97,7 @@ class VulkanDevice {
   VkInstance instance;
   VkDebugUtilsMessengerEXT debugMessenger;
   VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-  GameWindow &window;
+  HeavenWindow &window;
   VkCommandPool commandPool;
 
   VkDevice device_;

@@ -11,7 +11,7 @@
 
 namespace heaven_engine {
 
-    HeavenRenderer::HeavenRenderer(GameWindow& window, VulkanDevice& device) : gameWindow(window), vulkanDevice(device) {
+    HeavenRenderer::HeavenRenderer(HeavenWindow& window, HeavenVkDevice& device) : gameWindow(window), vulkanDevice(device) {
 
         recreateSwapChain();
         createCommandBuffers();
@@ -24,7 +24,7 @@ namespace heaven_engine {
 
     auto HeavenRenderer::createCommandBuffers() -> void {
 
-        commandBuffers.resize(VulkanSwapChain::MAX_FRAMES_IN_FLIGHT);
+        commandBuffers.resize(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
 
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -59,10 +59,10 @@ namespace heaven_engine {
         ::vkDeviceWaitIdle(vulkanDevice.device());
 
         if (vulkanSwapChain == nullptr) {
-            vulkanSwapChain = std::make_unique<VulkanSwapChain>(vulkanDevice, extent);
+            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent);
         } else {
             std::shared_ptr oldSwapChain = std::move(vulkanSwapChain);
-            vulkanSwapChain = std::make_unique<VulkanSwapChain>(vulkanDevice, extent, oldSwapChain);
+            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent, oldSwapChain);
 
             if (!oldSwapChain->compareSwapFormats(*vulkanSwapChain)) {
                 throw std::runtime_error("Swap chain image or depth format has changed!");
@@ -115,7 +115,7 @@ namespace heaven_engine {
         }
 
         isFrameBegun = false;
-        currentFrameIndex = (currentFrameIndex + 1) % VulkanSwapChain::MAX_FRAMES_IN_FLIGHT;
+        currentFrameIndex = (currentFrameIndex + 1) % HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT;
     }
 
     auto HeavenRenderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) -> void {

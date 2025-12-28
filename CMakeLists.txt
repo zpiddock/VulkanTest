@@ -36,7 +36,7 @@ add_subdirectory(heaven_engine)
 # --------------------
 # Game executable
 # --------------------
-add_executable(${PROJECT_NAME} game/main.cpp)
+add_executable(${PROJECT_NAME} game/main.cpp game/GameProgram.cpp)
 add_subdirectory(game)
 
 # --------------------

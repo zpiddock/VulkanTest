@@ -1,9 +1,9 @@
 add_subdirectory(models)
 
 target_sources(${ENGINE_NAME} PUBLIC
-        ShaderPipeline.cpp
-        VulkanDevice.cpp
-        VulkanSwapChain.cpp
+        HeavenShaderPipeline.cpp
+        HeavenVkDevice.cpp
+        HeavenVkSwapChain.cpp
         HeavenRenderer.cpp
         SimpleRenderSystem.cpp
 )

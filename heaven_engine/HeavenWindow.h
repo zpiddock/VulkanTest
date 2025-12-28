@@ -10,14 +10,14 @@
 
 namespace heaven_engine {
 
-    class GameWindow {
+    class HeavenWindow {
 
     public:
-        GameWindow();
-        ~GameWindow();
+        HeavenWindow();
+        ~HeavenWindow();
 
-        GameWindow(const GameWindow&) = delete;
-        GameWindow &operator=(const GameWindow&) = delete;
+        HeavenWindow(const HeavenWindow&) = delete;
+        HeavenWindow &operator=(const HeavenWindow&) = delete;
 
         auto shouldClose() -> bool { return ::glfwWindowShouldClose(window); }
 

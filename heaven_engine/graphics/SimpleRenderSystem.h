@@ -5,7 +5,7 @@
 #pragma once
 #include <GameObject.h>
 #include <bits/unique_ptr.h>
-#include <graphics/ShaderPipeline.h>
+#include <graphics/HeavenShaderPipeline.h>
 #include <graphics/models/BasicModel.h>
 
 namespace heaven_engine {
@@ -13,7 +13,7 @@ namespace heaven_engine {
 
     public:
 
-        SimpleRenderSystem(VulkanDevice& device, VkRenderPass renderPass);
+        SimpleRenderSystem(HeavenVkDevice& device, VkRenderPass renderPass);
         ~SimpleRenderSystem();
 
         SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -25,8 +25,8 @@ namespace heaven_engine {
         auto createPipeline(VkRenderPass renderPass) -> void;
         auto createPipelineLayout() -> void;
 
-        VulkanDevice& vulkanDevice;
-        std::unique_ptr<ShaderPipeline> shaderPipeline;
+        HeavenVkDevice& vulkanDevice;
+        std::unique_ptr<HeavenShaderPipeline> shaderPipeline;
 
         VkPipelineLayout pipelineLayout;
     };

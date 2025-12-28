@@ -4,14 +4,14 @@
 
 #include "BasicModel.h"
 
-#include <graphics/VulkanDevice.h>
+#include <graphics/HeavenVkDevice.h>
 #include <vector>
 
 #include <cassert>
 
 namespace heaven_engine {
 
-    BasicModel::BasicModel(VulkanDevice &device, const std::vector<Vertex> &vertices) : device{device} {
+    BasicModel::BasicModel(HeavenVkDevice &device, const std::vector<Vertex> &vertices) : device{device} {
 
         createVertexBuffer(vertices);
     }
