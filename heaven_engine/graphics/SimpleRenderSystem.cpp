@@ -67,7 +67,7 @@ namespace heaven_engine {
             pipelineConfig);
     }
 
-    auto SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjs) -> void {
+    auto SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjs, const HvnCamera& camera) -> void {
         shaderPipeline->bind(commandBuffer);
 
         for (auto& obj : gameObjs) {
@@ -77,7 +77,7 @@ namespace heaven_engine {
 
             SimplePushConstantData push{};
             push.colour = obj.colour;
-            push.transform = obj.transform.mat4();
+            push.transform = camera.getProjectionMatrix() * obj.transform.mat4();
 
             ::vkCmdPushConstants(commandBuffer,
                 pipelineLayout,

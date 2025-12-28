@@ -93,7 +93,7 @@ namespace heaven_engine {
 
         auto cube = GameObject::createGameObject();
         cube.model = model;
-        cube.transform.translation = {0.f, 0.f, 0.5f};
+        cube.transform.translation = {0.f, 0.f, 2.5f};
         cube.transform.scale = {0.5f, 0.5f, 0.5f};
         gameObjects.push_back(std::move(cube));
     }
@@ -103,6 +103,8 @@ namespace heaven_engine {
         auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(), renderer.getImageCount());
 
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
+
+        HvnCamera camera{};
 
         double lastTime = ::glfwGetTime();
         float frameTimer = 0.0f;
@@ -117,6 +119,10 @@ namespace heaven_engine {
         //Gameloop
         while(!gameWindow.shouldClose()) {
             ::glfwPollEvents();
+
+            float aspect = renderer.getAspectRatio();
+            // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+            camera.setPerspectiveProjection(glm::radians(60.0f), aspect, 0.1f, 10.0f);
 
             double currentTime = ::glfwGetTime();
             float deltaTime = static_cast<float>(currentTime - lastTime);
@@ -150,7 +156,7 @@ namespace heaven_engine {
                 // Once we cover offscreen rendering, we can render the scene to a image/texture rather than
                 // directly to the swap chain. This texture of the scene can then be rendered to an imgui
                 // subwindow
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
                 if (imguiShouldRender) {
                     // example code telling imgui what windows to render, and their contents

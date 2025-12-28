@@ -7,4 +7,5 @@ target_sources(${ENGINE_NAME} PUBLIC
         HeavenVkSwapChain.cpp
         HeavenRenderer.cpp
         SimpleRenderSystem.cpp
+        HvnCamera.cpp
 )

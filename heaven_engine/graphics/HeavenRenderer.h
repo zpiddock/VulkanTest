@@ -29,6 +29,8 @@ namespace heaven_engine {
 
         auto getSwapChainRenderPass() const -> VkRenderPass { return vulkanSwapChain->getRenderPass(); };
 
+        auto getAspectRatio() const -> float { return vulkanSwapChain->extentAspectRatio(); }
+
         auto getImageCount() const -> uint32_t { return vulkanSwapChain->imageCount(); }
 
         auto isFrameInProgress() const -> bool {
