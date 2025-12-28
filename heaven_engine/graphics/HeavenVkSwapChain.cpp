@@ -384,12 +384,15 @@ namespace heaven_engine {
 
   VkPresentModeKHR HeavenVkSwapChain::chooseSwapPresentMode(
     const std::vector<VkPresentModeKHR> &availablePresentModes) {
-    for (const auto &availablePresentMode: availablePresentModes) {
-      if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-        std::cout << "Present mode: Mailbox" << std::endl;
-        return availablePresentMode;
-      }
-    }
+
+    // In future we will implement a config for unrestricted fps (clamped by delta time)
+    // Uncomment for mailbox mode (Unrestricted)
+    // for (const auto &availablePresentMode: availablePresentModes) {
+    //   if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+    //     std::cout << "Present mode: Mailbox" << std::endl;
+    //     return availablePresentMode;
+    //   }
+    // }
 
     // for (const auto &availablePresentMode : availablePresentModes) {
     //   if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {

@@ -8,10 +8,11 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 
-#include <../heaven_engine/GameObject.h>
-#include <../heaven_engine/graphics/SimpleRenderSystem.h>
+#include <heaven_engine/GameObject.h>
+#include <heaven_engine/graphics/SimpleRenderSystem.h>
 
 #include <glm/gtc/constants.hpp>
+#include <string>
 
 namespace heaven_engine {
 
@@ -48,9 +49,31 @@ namespace heaven_engine {
 
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
 
+        double lastTime = ::glfwGetTime();
+        float frameTimer = 0.0f;
+        int frameCount = 0;
+
         //Gameloop
         while(!gameWindow.shouldClose()) {
             ::glfwPollEvents();
+
+            double currentTime = ::glfwGetTime();
+            float deltaTime = static_cast<float>(currentTime - lastTime);
+            lastTime = currentTime;
+
+            // Update FPS in the window title every second
+            frameTimer += deltaTime;
+            frameCount++;
+            if (frameTimer >= 1.0f) {
+                std::string fpsTitle = "TestGame - FPS: " + std::to_string(frameCount);
+                ::glfwSetWindowTitle(gameWindow.getWindowPtr(), fpsTitle.c_str());
+                frameTimer = 0.0f;
+                frameCount = 0;
+            }
+
+            // Optional: Limit deltaTime to avoid "teleporting" if the app hitches
+            deltaTime = glm::min(deltaTime, 0.1f);
+
             if (auto commandBuffer = renderer.beginFrame()) {
 
                 renderer.beginSwapChainRenderPass(commandBuffer);
