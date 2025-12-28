@@ -17,7 +17,7 @@ namespace heaven_engine {
     public:
 
         struct Vertex {
-            glm::vec2 position;
+            glm::vec3 position;
             glm::vec3 colour;
 
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
