@@ -15,4 +15,20 @@ target_link_libraries(${ENGINE_NAME} PUBLIC
         Vulkan::Vulkan
         glm::glm
         shaderc_shared
+        imguilib
 )
+
+target_sources(imguilib PUBLIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/imstb_truetype.h
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+)
+
+target_link_libraries(imguilib PRIVATE glfw Vulkan::Vulkan)
+target_include_directories(imguilib PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/backends)
+

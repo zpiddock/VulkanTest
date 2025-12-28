@@ -28,6 +28,11 @@ include(dependencies)
 include(shaderc_fetch)
 
 # --------------------
+# IMGUI Library
+# --------------------
+add_library(imguilib SHARED)
+
+# --------------------
 # Engine library
 # --------------------
 add_library(${ENGINE_NAME} SHARED)

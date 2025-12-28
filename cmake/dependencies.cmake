@@ -43,3 +43,10 @@ FetchContent_Declare(
         GIT_TAG ${GLSLANG_VERSION}
 )
 FetchContent_MakeAvailable(glslang)
+
+# IMGUI
+FetchContent_Declare(
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG docking)
+FetchContent_MakeAvailable(imgui)

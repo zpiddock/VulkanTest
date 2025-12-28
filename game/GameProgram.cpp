@@ -11,8 +11,9 @@
 #include <heaven_engine/GameObject.h>
 #include <heaven_engine/graphics/SimpleRenderSystem.h>
 
-#include <glm/gtc/constants.hpp>
 #include <string>
+
+#include "graphics/integrations/Heaven_imgui_impl.h"
 
 namespace heaven_engine {
 
@@ -97,6 +98,8 @@ namespace heaven_engine {
 
     auto GameProgram::run() -> void {
 
+        auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(), renderer.getImageCount());
+
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
 
         double lastTime = ::glfwGetTime();
@@ -126,9 +129,29 @@ namespace heaven_engine {
 
             if (auto commandBuffer = renderer.beginFrame()) {
 
+                // start imgui rendering
+                imgui.newFrame();
+
+
                 renderer.beginSwapChainRenderPass(commandBuffer);
+
+                // render game objects first, so they will be rendered in the background. This
+                // is the best we can do for now.
+                // Once we cover offscreen rendering, we can render the scene to a image/texture rather than
+                // directly to the swap chain. This texture of the scene can then be rendered to an imgui
+                // subwindow
                 simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+
+                // example code telling imgui what windows to render, and their contents
+                // this can be replaced with whatever code/classes you set up configuring your
+                // desired engine UI
+                imgui.runExample();
+
+                // as last step in render pass, record the imgui draw commands
+                imgui.render(commandBuffer);
+
                 renderer.endSwapChainRenderPass(commandBuffer);
+
                 renderer.endFrame();
             }
         }
