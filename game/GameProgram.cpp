@@ -13,7 +13,10 @@
 
 #include <string>
 
+#include <chrono>
+
 #include "graphics/integrations/Heaven_imgui_impl.h"
+#include "input/Keyboard_Movement_Controller.h"
 
 namespace heaven_engine {
 
@@ -105,12 +108,9 @@ namespace heaven_engine {
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
 
         HvnCamera camera{};
-        // camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f), glm::vec3(0.f, -1.f, 0.f));
-        // camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
-        double lastTime = ::glfwGetTime();
-        float frameTimer = 0.0f;
-        int frameCount = 0;
+        auto viewerObject = GameObject::createGameObject();
+        Keyboard_Movement_Controller cameraController{};
 
         ::glfwSetKeyCallback(gameWindow.getWindowPtr(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
             if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
@@ -118,30 +118,24 @@ namespace heaven_engine {
             }
         });
 
+        auto currentTime = std::chrono::high_resolution_clock::now();
+
         //Gameloop
         while(!gameWindow.shouldClose()) {
             ::glfwPollEvents();
 
+            auto newTime = std::chrono::high_resolution_clock::now();
+            float frameTime = std::chrono::duration<float>(newTime - currentTime).count();
+            currentTime = newTime;
+
+            if (!imguiShouldRender) {
+                cameraController.moveInPlaneXZ(gameWindow.getWindowPtr(), frameTime, viewerObject);
+                camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+            }
+
             float aspect = renderer.getAspectRatio();
             // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
             camera.setPerspectiveProjection(glm::radians(60.0f), aspect, 0.1f, 10.0f);
-
-            double currentTime = ::glfwGetTime();
-            float deltaTime = static_cast<float>(currentTime - lastTime);
-            lastTime = currentTime;
-
-            // Update FPS in the window title every second
-            frameTimer += deltaTime;
-            frameCount++;
-            if (frameTimer >= 1.0f) {
-                std::string fpsTitle = "TestGame - FPS: " + std::to_string(frameCount);
-                ::glfwSetWindowTitle(gameWindow.getWindowPtr(), fpsTitle.c_str());
-                frameTimer = 0.0f;
-                frameCount = 0;
-            }
-
-            // Optional: Limit deltaTime to avoid "teleporting" if the app hitches
-            deltaTime = glm::min(deltaTime, 0.1f);
 
             if (auto commandBuffer = renderer.beginFrame()) {
 
@@ -149,7 +143,6 @@ namespace heaven_engine {
                     // start imgui rendering
                     imgui.newFrame();
                 }
-
 
                 renderer.beginSwapChainRenderPass(commandBuffer);
 

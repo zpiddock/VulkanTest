@@ -1,4 +1,5 @@
 add_subdirectory(graphics)
+add_subdirectory(input)
 
 target_sources(${ENGINE_NAME} PUBLIC
         HeavenWindow.cpp

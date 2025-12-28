@@ -74,9 +74,6 @@ namespace heaven_engine {
 
         for (auto& obj : gameObjs) {
 
-            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
-            obj.transform.rotation.z = glm::mod(obj.transform.rotation.z + 0.01f, glm::two_pi<float>());
-
             SimplePushConstantData push{};
             push.colour = obj.colour;
             push.transform = projectionView * obj.transform.mat4();
