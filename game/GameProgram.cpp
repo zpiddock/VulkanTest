@@ -76,6 +76,8 @@ namespace heaven_engine {
         return std::make_unique<BasicModel>(device, vertices);
     }
 
+    bool imguiShouldRender = false;
+
     GameProgram::GameProgram() {
 
         loadObjects();
@@ -106,6 +108,12 @@ namespace heaven_engine {
         float frameTimer = 0.0f;
         int frameCount = 0;
 
+        ::glfwSetKeyCallback(gameWindow.getWindowPtr(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+                imguiShouldRender = !imguiShouldRender;
+            }
+        });
+
         //Gameloop
         while(!gameWindow.shouldClose()) {
             ::glfwPollEvents();
@@ -129,8 +137,10 @@ namespace heaven_engine {
 
             if (auto commandBuffer = renderer.beginFrame()) {
 
-                // start imgui rendering
-                imgui.newFrame();
+                if (imguiShouldRender) {
+                    // start imgui rendering
+                    imgui.newFrame();
+                }
 
 
                 renderer.beginSwapChainRenderPass(commandBuffer);
@@ -142,13 +152,15 @@ namespace heaven_engine {
                 // subwindow
                 simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
 
-                // example code telling imgui what windows to render, and their contents
-                // this can be replaced with whatever code/classes you set up configuring your
-                // desired engine UI
-                imgui.runExample();
+                if (imguiShouldRender) {
+                    // example code telling imgui what windows to render, and their contents
+                    // this can be replaced with whatever code/classes you set up configuring your
+                    // desired engine UI
+                    imgui.runExample();
 
-                // as last step in render pass, record the imgui draw commands
-                imgui.render(commandBuffer);
+                    // as last step in render pass, record the imgui draw commands
+                    imgui.render(commandBuffer);
+                }
 
                 renderer.endSwapChainRenderPass(commandBuffer);
 

@@ -33,9 +33,9 @@ namespace heaven_engine {
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
+        pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
-        if (vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) {
+        if (::vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to set up descriptor pool for imgui");
         }
 
@@ -44,6 +44,7 @@ namespace heaven_engine {
         ImGui::CreateContext();
         ImGuiIO &io = ImGui::GetIO();
         (void) io;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
         // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
@@ -53,7 +54,7 @@ namespace heaven_engine {
 
         // Setup Platform/Renderer backends
         // Initialize imgui for vulkan
-        ImGui_ImplGlfw_InitForVulkan(window.getWindowPtr(), true);
+        ::ImGui_ImplGlfw_InitForVulkan(window.getWindowPtr(), true);
         ImGui_ImplVulkan_InitInfo init_info = {};
         init_info.Instance = device.getInstance();
         init_info.PhysicalDevice = device.getPhysicalDevice();
@@ -73,7 +74,7 @@ namespace heaven_engine {
         init_info.MinImageCount = 2;
         init_info.ImageCount = imageCount;
         init_info.CheckVkResultFn = check_vk_result;
-        ImGui_ImplVulkan_Init(&init_info);
+        ::ImGui_ImplVulkan_Init(&init_info);
 
         // upload fonts, this is done by recording and submitting a one time use command buffer
         // which can be done easily by using some existing helper functions on the lve device object
@@ -84,15 +85,15 @@ namespace heaven_engine {
     }
 
     Heaven_imgui_impl::~Heaven_imgui_impl() {
-        vkDestroyDescriptorPool(hvkDevice.device(), descriptorPool, nullptr);
-        ImGui_ImplVulkan_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
+        ::vkDestroyDescriptorPool(hvkDevice.device(), descriptorPool, nullptr);
+        ::ImGui_ImplVulkan_Shutdown();
+        ::ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
     }
 
     void Heaven_imgui_impl::newFrame() {
-        ImGui_ImplVulkan_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
+        ::ImGui_ImplVulkan_NewFrame();
+        ::ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
     }
 
@@ -102,7 +103,7 @@ namespace heaven_engine {
     void Heaven_imgui_impl::render(VkCommandBuffer commandBuffer) {
         ImGui::Render();
         ImDrawData *drawdata = ImGui::GetDrawData();
-        ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
+        ::ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
     }
 
     void Heaven_imgui_impl::runExample() {
