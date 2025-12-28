@@ -70,6 +70,8 @@ namespace heaven_engine {
     auto SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjs, const HvnCamera& camera) -> void {
         shaderPipeline->bind(commandBuffer);
 
+        auto projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();
+
         for (auto& obj : gameObjs) {
 
             obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
@@ -77,7 +79,7 @@ namespace heaven_engine {
 
             SimplePushConstantData push{};
             push.colour = obj.colour;
-            push.transform = camera.getProjectionMatrix() * obj.transform.mat4();
+            push.transform = projectionView * obj.transform.mat4();
 
             ::vkCmdPushConstants(commandBuffer,
                 pipelineLayout,

@@ -105,6 +105,8 @@ namespace heaven_engine {
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
 
         HvnCamera camera{};
+        // camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f), glm::vec3(0.f, -1.f, 0.f));
+        // camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
         double lastTime = ::glfwGetTime();
         float frameTimer = 0.0f;
