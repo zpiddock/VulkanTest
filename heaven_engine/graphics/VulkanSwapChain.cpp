@@ -187,7 +187,7 @@ namespace heaven_engine {
     vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data());
 
     swapChainImageFormat = surfaceFormat.format;
-    swapChainExtent = extent;
+    currentSwapChainExtent = extent;
   }
 
   void VulkanSwapChain::createImageViews() {
@@ -299,6 +299,7 @@ namespace heaven_engine {
 
   void VulkanSwapChain::createDepthResources() {
     VkFormat depthFormat = findDepthFormat();
+    swapChainDepthFormat = depthFormat;
     VkExtent2D swapChainExtent = getSwapChainExtent();
 
     depthImages.resize(imageCount());

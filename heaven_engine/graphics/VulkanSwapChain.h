@@ -31,12 +31,12 @@ namespace heaven_engine {
         VkImageView getImageView(int index) { return swapChainImageViews[index]; }
         size_t imageCount() { return swapChainImages.size(); }
         VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-        VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-        uint32_t width() { return swapChainExtent.width; }
-        uint32_t height() { return swapChainExtent.height; }
+        VkExtent2D getSwapChainExtent() { return currentSwapChainExtent; }
+        uint32_t width() { return currentSwapChainExtent.width; }
+        uint32_t height() { return currentSwapChainExtent.height; }
 
         float extentAspectRatio() {
-            return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
+            return static_cast<float>(currentSwapChainExtent.width) / static_cast<float>(currentSwapChainExtent.height);
         }
 
         VkFormat findDepthFormat();
@@ -44,6 +44,11 @@ namespace heaven_engine {
         VkResult acquireNextImage(uint32_t *imageIndex);
 
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+
+        auto compareSwapFormats(const VulkanSwapChain& swapChain) const -> bool {
+            return swapChainImageFormat == swapChain.swapChainImageFormat &&
+                swapChainDepthFormat == swapChain.swapChainDepthFormat;
+        };
 
     private:
         auto init() -> void;
@@ -70,7 +75,8 @@ namespace heaven_engine {
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
         VkFormat swapChainImageFormat;
-        VkExtent2D swapChainExtent;
+        VkFormat swapChainDepthFormat;
+        VkExtent2D currentSwapChainExtent;
 
         std::vector<VkFramebuffer> swapChainFramebuffers;
         VkRenderPass renderPass;
