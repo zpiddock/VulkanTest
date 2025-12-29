@@ -11,15 +11,21 @@
 
 namespace heaven_engine {
 
-    BasicModel::BasicModel(HeavenVkDevice &device, const std::vector<Vertex> &vertices) : device{device} {
+    BasicModel::BasicModel(HeavenVkDevice &device, const ModelData& modelData) : device{device} {
 
-        createVertexBuffer(vertices);
+        createVertexBuffer(modelData.vertices);
+        createIndexBuffer(modelData.indices);
     }
 
     BasicModel::~BasicModel() {
 
         ::vkDestroyBuffer(device.device(), vertexBuffer, nullptr);
         ::vkFreeMemory(device.device(), vertexBufferMemory, nullptr);
+
+        if (hasIndexBuffer) {
+            ::vkDestroyBuffer(device.device(), indexBuffer, nullptr);
+            ::vkFreeMemory(device.device(), indexBufferMemory, nullptr);
+        }
     }
 
     std::vector<VkVertexInputBindingDescription> BasicModel::Vertex::getBindingDescriptions() {
@@ -50,8 +56,13 @@ namespace heaven_engine {
 
     auto BasicModel::begin(VkCommandBuffer commandBuffer) -> void {
 
-        ::vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+        if (hasIndexBuffer) {
 
+            ::vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
+        } else {
+
+            ::vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+        }
     }
 
     auto BasicModel::bind(VkCommandBuffer commandBuffer) -> void {
@@ -59,6 +70,11 @@ namespace heaven_engine {
         VkBuffer buffers[] = {vertexBuffer};
         VkDeviceSize offsets[] = {0};
         ::vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
+
+        if (hasIndexBuffer) {
+
+            ::vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+        }
     }
 
     auto BasicModel::createVertexBuffer(const std::vector<Vertex> &vertices) -> void {
@@ -78,5 +94,28 @@ namespace heaven_engine {
         ::vkMapMemory(device.device(), vertexBufferMemory, 0, bufferSize, 0, &data);
         memcpy(data, vertices.data(), bufferSize);
         ::vkUnmapMemory(device.device(), vertexBufferMemory);
+    }
+
+    auto BasicModel::createIndexBuffer(const std::vector<uint32_t> &indices) -> void {
+
+        indexCount = static_cast<uint32_t>(indices.size());
+        hasIndexBuffer = indexCount > 0;
+
+        // Return if no index buffer
+        if (!hasIndexBuffer) return;
+
+        VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+
+        device.createBuffer(
+            bufferSize,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            indexBuffer,
+            indexBufferMemory);
+
+        void* data;
+        ::vkMapMemory(device.device(), indexBufferMemory, 0, bufferSize, 0, &data);
+        ::memcpy(data, indices.data(), bufferSize);
+        ::vkUnmapMemory(device.device(), indexBufferMemory);
     }
 } // heaven_engine

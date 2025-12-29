@@ -23,7 +23,10 @@ namespace heaven_engine {
 
     // Cube Model
     std::unique_ptr<BasicModel> createCubeModel(HeavenVkDevice &device, glm::vec3 offset) {
-        std::vector<BasicModel::Vertex> vertices{
+
+        BasicModel::ModelData modelData{};
+
+        modelData.vertices = {
 
             // left face (white)
             {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
@@ -74,10 +77,11 @@ namespace heaven_engine {
             {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
 
         };
-        for (auto &v: vertices) {
+
+        for (auto &v: modelData.vertices) {
             v.position += offset;
         }
-        return std::make_unique<BasicModel>(device, vertices);
+        return std::make_unique<BasicModel>(device, modelData);
     }
 
     GameProgram::GameProgram() {
