@@ -31,13 +31,17 @@ namespace heaven_engine {
         void render(VkCommandBuffer commandBuffer);
 
         // Example state
-        bool show_demo_window = true;
+        bool show_demo_window = false;
         bool show_another_window = false;
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
         void runExample();
 
+        auto runDebugMenu() -> void;
+
     private:
         HeavenVkDevice &hvkDevice;
+
+        HeavenWindow& gameWindow;
 
         // We haven't yet covered descriptor pools in the tutorial series
         // so I'm just going to create one for just imgui and store it here for now.

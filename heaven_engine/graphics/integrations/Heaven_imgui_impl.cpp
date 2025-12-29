@@ -14,7 +14,7 @@ namespace heaven_engine {
     // using.
     Heaven_imgui_impl::Heaven_imgui_impl(
         HeavenWindow &window, HeavenVkDevice &device, VkRenderPass renderPass, uint32_t imageCount)
-        : hvkDevice{device} {
+        : hvkDevice{device}, gameWindow(window) {
         // set up a descriptor pool stored on this instance, see header for more comments on this.
         VkDescriptorPoolSize pool_sizes[] = {
             {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
@@ -33,7 +33,7 @@ namespace heaven_engine {
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
+        pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
         if (::vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to set up descriptor pool for imgui");
@@ -104,6 +104,22 @@ namespace heaven_engine {
         ImGui::Render();
         ImDrawData *drawdata = ImGui::GetDrawData();
         ::ImGui_ImplVulkan_RenderDrawData(drawdata, commandBuffer);
+    }
+
+    auto Heaven_imgui_impl::runDebugMenu() -> void {
+
+        ImGui::Begin("Debug Menu");
+
+        ImGui::Text(
+                "Application average %.3f ms/frame (%.1f FPS)",
+                1000.0f / ImGui::GetIO().Framerate,
+                ImGui::GetIO().Framerate);
+
+        ImGui::Separator();
+        if (ImGui::Button("Close Game")) {
+            ::glfwSetWindowShouldClose(gameWindow.getWindowPtr(), GLFW_TRUE);
+        }
+        ImGui::End();
     }
 
     void Heaven_imgui_impl::runExample() {

@@ -3,6 +3,7 @@ add_subdirectory(graphics)
 target_sources(${ENGINE_NAME} PUBLIC
         HeavenWindow.cpp
         GameObject.cpp
+        InputManager.cpp
 )
 
 target_include_directories(${ENGINE_NAME} PUBLIC

@@ -101,7 +101,6 @@ namespace heaven_engine {
     }
 
     auto GameProgram::run() -> void {
-
         GameConfigInfo gameConfigInfo{};
 
         auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(), renderer.getImageCount());
@@ -111,16 +110,15 @@ namespace heaven_engine {
         HvnCamera camera{};
 
         auto viewerObject = GameObject::createGameObject();
-        Movement_Controller cameraController{};
 
-        Movement_Controller::Callback_Context callbackContext{gameConfigInfo, viewerObject, cameraController};
+        InputManager inputManager{gameWindow};
 
-        ::glfwSetWindowUserPointer(gameWindow.getWindowPtr(), &callbackContext);
-        ::glfwSetKeyCallback(gameWindow.getWindowPtr(), Movement_Controller::keyInputCallback);
+        Movement_Controller cameraController{gameConfigInfo};
+        cameraController.setTargetObject(viewerObject);
+        inputManager.addSubscriber(&cameraController);
 
         ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         if (::glfwRawMouseMotionSupported()) ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-        ::glfwSetCursorPosCallback(gameWindow.getWindowPtr(), Movement_Controller::mouseInputCallback);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -161,6 +159,7 @@ namespace heaven_engine {
                     // example code telling imgui what windows to render, and their contents
                     // this can be replaced with whatever code/classes you set up configuring your
                     // desired engine UI
+                    imgui.runDebugMenu();
                     imgui.runExample();
 
                     // as last step in render pass, record the imgui draw commands

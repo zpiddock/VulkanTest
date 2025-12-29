@@ -43,18 +43,13 @@ namespace heaven_engine {
         }
     }
 
-    void Movement_Controller::keyInputCallback(GLFWwindow *window, int key, int scancode, int action,
-        int mods) {
-
-        auto context = reinterpret_cast<Callback_Context*>(::glfwGetWindowUserPointer(window));
-
-        ::ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+    void Movement_Controller::onKey(GLFWwindow* window, int key, int scancode, int action, int mods) {
 
         if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 
-            context->config.imguiShouldOpen = !context->config.imguiShouldOpen;
+            config.imguiShouldOpen = !config.imguiShouldOpen;
 
-            if (context->config.imguiShouldOpen) {
+            if (config.imguiShouldOpen) {
                 ::glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             } else {
                 ::glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -62,42 +57,38 @@ namespace heaven_engine {
         }
     }
 
-    void Movement_Controller::mouseInputCallback(GLFWwindow *window, double xpos, double ypos) {
-
-        auto context = reinterpret_cast<Callback_Context*>(::glfwGetWindowUserPointer(window));
-
-        ::ImGui_ImplGlfw_CursorPosCallback(window, xpos, ypos);
+    void Movement_Controller::onMouseMove(GLFWwindow* window, double xpos, double ypos) {
 
         // Don't rotate if ImGui is open
-        if (context->config.imguiShouldOpen) {
-            context->controller.firstMouse = true;
+        if (config.imguiShouldOpen) {
+            firstMouse = true;
             return;
         }
 
-        if (context->controller.firstMouse) {
-            context->controller.lastMouseX = xpos;
-            context->controller.lastMouseY = ypos;
-            context->controller.firstMouse = false;
+        if (firstMouse) {
+            lastMouseX = xpos;
+            lastMouseY = ypos;
+            firstMouse = false;
         }
 
-        float xoffset = static_cast<float>(xpos - context->controller.lastMouseX);
-        float yoffset = static_cast<float>(context->controller.lastMouseY - ypos); // Reversed: y-coords go from bottom to top
+        float xoffset = static_cast<float>(xpos - lastMouseX);
+        float yoffset = static_cast<float>(lastMouseY - ypos); // Reversed: y-coords go from bottom to top
 
-        context->controller.lastMouseX = xpos;
-        context->controller.lastMouseY = ypos;
+        lastMouseX = xpos;
+        lastMouseY = ypos;
 
         float sensitivity = 0.002f; // Adjust this to your liking
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
         // Apply rotation to the GameObject
-        context->viewerObject.transform.rotation.y += xoffset;
-        context->viewerObject.transform.rotation.x += yoffset;
+        viewerObject->transform.rotation.y += xoffset;
+        viewerObject->transform.rotation.x += yoffset;
 
         // Limit pitch so the camera doesn't flip upside down
-        context->viewerObject.transform.rotation.x = glm::clamp(context->viewerObject.transform.rotation.x, -1.5f, 1.5f);
+        viewerObject->transform.rotation.x = glm::clamp(viewerObject->transform.rotation.x, -1.5f, 1.5f);
 
         // Limit yaw from growing too high if we spin in the same direction
-        context->viewerObject.transform.rotation.y = glm::mod(context->viewerObject.transform.rotation.y, glm::two_pi<float>());
+        viewerObject->transform.rotation.y = glm::mod(viewerObject->transform.rotation.y, glm::two_pi<float>());
     }
 } // heaven_engine

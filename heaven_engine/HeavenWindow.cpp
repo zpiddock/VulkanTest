@@ -15,6 +15,9 @@
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 
+#include "InputManager.h"
+#include "game/input/Movement_Controller.h"
+
 namespace heaven_engine {
 
     HeavenWindow::HeavenWindow() {
@@ -42,7 +45,7 @@ namespace heaven_engine {
             throw std::runtime_error("Failed to create GLFW window!");
         }
 
-        ::glfwSetWindowUserPointer(window, this);
+        // ::glfwSetWindowUserPointer(window, this);
         ::glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 
         return EXIT_SUCCESS;
@@ -70,9 +73,9 @@ namespace heaven_engine {
 
     auto HeavenWindow::framebufferResizeCallback(GLFWwindow *window, int width, int height) -> void {
 
-        auto gameWindow = reinterpret_cast<HeavenWindow*>(::glfwGetWindowUserPointer(window));
-        gameWindow->framebufferResized = true;
-        gameWindow->width = width;
-        gameWindow->height = height;
+        auto context = reinterpret_cast<InputManager::WindowContext*>(::glfwGetWindowUserPointer(window));
+        context->heavenWindow.framebufferResized = true;
+        context->heavenWindow.width = width;
+        context->heavenWindow.height = height;
     }
 }
