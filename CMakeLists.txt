@@ -44,10 +44,14 @@ add_subdirectory(heaven_engine)
 add_executable(${PROJECT_NAME})
 add_subdirectory(game)
 
+# To remove the 'lib' prefix from all targets defined in the project
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
+set(CMAKE_STATIC_LIBRARY_PREFIX "")
+
 # --------------------
 # Runtime Shaderc DLL copy
 # --------------------
-add_custom_command(TARGET ${ENGINE_NAME} POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "$<TARGET_FILE_DIR:shaderc_shared>/$<TARGET_FILE_NAME:shaderc_shared>"
         $<TARGET_FILE_DIR:${ENGINE_NAME}>

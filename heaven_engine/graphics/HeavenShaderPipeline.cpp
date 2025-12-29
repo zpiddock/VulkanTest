@@ -81,7 +81,6 @@ namespace heaven_engine {
         // auto vertexCode = readFile(shaderFilepath, "vert");
         // auto fragmentCode = readFile(shaderFilepath,"frag");
 
-        // TODO: Maybe dont compile shaders on every window resize....
         auto vertexCode = compileShader(shaderFilepath, "vert");
         auto fragmentCode = compileShader(shaderFilepath, "frag");
 

@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 
 #include <heaven_engine/GameObject.h>
+#include <heaven_engine/graphics/models/BasicModel.h>
 #include <heaven_engine/graphics/SimpleRenderSystem.h>
 
 #include <string>
@@ -21,93 +22,29 @@
 
 namespace heaven_engine {
 
-    // Cube Model
-    std::unique_ptr<BasicModel> createCubeModel(HeavenVkDevice &device, glm::vec3 offset) {
-
-        BasicModel::ModelData modelData{};
-
-        modelData.vertices = {
-
-            // left face (white)
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
-            {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
-            {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
-
-            // right face (yellow)
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
-            {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
-
-            // top face (orange, remember y axis points down)
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-            {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
-            {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
-
-            // bottom face (red)
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
-            {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
-            {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
-
-            // nose face (blue)
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-            {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
-            {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
-
-            // tail face (green)
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-            {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
-            {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
-
-        };
-
-        for (auto &v: modelData.vertices) {
-            v.position += offset;
-        }
-        return std::make_unique<BasicModel>(device, modelData);
-    }
-
     GameProgram::GameProgram() {
-
         loadObjects();
     }
 
     GameProgram::~GameProgram() {
-
     }
 
     auto GameProgram::loadObjects() -> void {
 
-        std::shared_ptr model = createCubeModel(vulkanDevice, {0.f, 0.f, 0.f});
+        std::shared_ptr model = BasicModel::createFromFile(vulkanDevice, "assets/models/smooth_vase.obj");
 
-        auto cube = GameObject::createGameObject();
-        cube.model = model;
-        cube.transform.translation = {0.f, 0.f, 2.5f};
-        cube.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.push_back(std::move(cube));
+        auto object = GameObject::createGameObject();
+        object.model = model;
+        object.transform.translation = {0.f, 0.f, 2.5f};
+        object.transform.scale = {0.5f, 0.5f, 0.5f};
+        gameObjects.push_back(std::move(object));
     }
 
     auto GameProgram::run() -> void {
         GameConfigInfo gameConfigInfo{};
 
-        auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(), renderer.getImageCount());
+        auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(),
+                                       renderer.getImageCount());
 
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
 
@@ -122,12 +59,13 @@ namespace heaven_engine {
         inputManager.addSubscriber(&cameraController);
 
         ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        if (::glfwRawMouseMotionSupported()) ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        if (::glfwRawMouseMotionSupported()) ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION,
+                                                                GLFW_TRUE);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
         //Gameloop
-        while(!gameWindow.shouldClose()) {
+        while (!gameWindow.shouldClose()) {
             ::glfwPollEvents();
 
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -144,7 +82,6 @@ namespace heaven_engine {
             camera.setPerspectiveProjection(glm::radians(60.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = renderer.beginFrame()) {
-
                 if (gameConfigInfo.imguiShouldOpen) {
                     // start imgui rendering
                     imgui.newFrame();
@@ -164,7 +101,6 @@ namespace heaven_engine {
                     // this can be replaced with whatever code/classes you set up configuring your
                     // desired engine UI
                     imgui.runDebugMenu();
-                    imgui.runExample();
 
                     // as last step in render pass, record the imgui draw commands
                     imgui.render(commandBuffer);

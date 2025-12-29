@@ -1,4 +1,5 @@
 add_subdirectory(graphics)
+add_subdirectory(utils)
 
 target_sources(${ENGINE_NAME} PUBLIC
         HeavenWindow.cpp
@@ -17,6 +18,7 @@ target_link_libraries(${ENGINE_NAME} PUBLIC
         glm::glm
         shaderc_shared
         imguilib
+        tinyobjloader
 )
 
 target_sources(imguilib PUBLIC

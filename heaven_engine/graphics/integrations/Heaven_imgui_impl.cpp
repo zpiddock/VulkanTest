@@ -6,6 +6,7 @@
 #include <imgui_impl_vulkan.h>
 
 // std
+#include <filesystem>
 #include <stdexcept>
 
 namespace heaven_engine {
@@ -82,6 +83,28 @@ namespace heaven_engine {
         // ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
         // device.endSingleTimeCommands(commandBuffer);
         // ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+        refreshAssets();
+    }
+
+    void Heaven_imgui_impl::refreshAssets() {
+
+        availableAssets.clear();
+        std::string path = "assets/models";
+        if (!std::filesystem::exists(path)) return;
+
+        for (const auto & entry : std::filesystem::directory_iterator(path)) {
+            if (entry.is_regular_file()) {
+                auto ext = entry.path().extension().string();
+                if (ext == ".obj") {
+                    availableAssets.push_back({
+                        entry.path().filename().string(),
+                        entry.path().string(),
+                        ext
+                    });
+                }
+            }
+        }
     }
 
     Heaven_imgui_impl::~Heaven_imgui_impl() {
@@ -119,55 +142,42 @@ namespace heaven_engine {
         if (ImGui::Button("Close Game")) {
             ::glfwSetWindowShouldClose(gameWindow.getWindowPtr(), GLFW_TRUE);
         }
+        ImGui::Separator();
+        ImGui::Checkbox("Model Browser", &show_model_browser);
+        ImGui::End();
+
+        if (show_model_browser) {
+
+            runAssetBrowser();
+        }
+    }
+    
+    auto Heaven_imgui_impl::runAssetBrowser() -> void {
+
+        if (ImGui::Begin("Asset Browser")) {
+            if (ImGui::Button("Refresh")) refreshAssets();
+            ImGui::SameLine();
+            ImGui::Text("%zu models found", availableAssets.size());
+
+            ImGui::Separator();
+
+            if (ImGui::BeginChild("AssetList")) {
+                for (const auto& asset : availableAssets) {
+                    // Selectable item for each model
+                    if (ImGui::Selectable(asset.name.c_str())) {
+                        // Logic for selecting the model could go here
+                    }
+                    if (ImGui::IsItemHovered()) {
+                        ImGui::SetTooltip("Path: %s\nType: %s", asset.path.c_str(), asset.extension.c_str());
+                    }
+                }
+                ImGui::EndChild();
+            }
+        }
         ImGui::End();
     }
 
     void Heaven_imgui_impl::runExample() {
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can
-        // browse its code to learn more about Dear ImGui!).
-        if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-        // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named
-        // window.
-        {
-            static float f = 0.0f;
-            static int counter = 0;
-
-            ImGui::Begin("Hello, world!"); // Create a window called "Hello, world!" and append into it.
-
-            ImGui::Text(
-                "This is some useful text."); // Display some text (you can use a format strings too)
-            ImGui::Checkbox(
-                "Demo Window",
-                &show_demo_window); // Edit bools storing our window open/close state
-            ImGui::Checkbox("Another Window", &show_another_window);
-
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f); // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color",
-                              (float *) &clear_color); // Edit 3 floats representing a color
-
-            if (ImGui::Button("Button")) // Buttons return true when clicked (most widgets return true
-                // when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text(
-                "Application average %.3f ms/frame (%.1f FPS)",
-                1000.0f / ImGui::GetIO().Framerate,
-                ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
-
-        // 3. Show another simple window.
-        if (show_another_window) {
-            ImGui::Begin(
-                "Another Window",
-                &show_another_window); // Pass a pointer to our bool variable (the window will have a
-            // closing button that will clear the bool when clicked)
-            ImGui::Text("Hello from another window!");
-            if (ImGui::Button("Close Me")) show_another_window = false;
-            ImGui::End();
-        }
     }
 } // namespace lve

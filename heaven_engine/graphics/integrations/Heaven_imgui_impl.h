@@ -23,6 +23,14 @@ namespace heaven_engine {
 
     class Heaven_imgui_impl {
     public:
+
+        struct AssetInfo {
+
+            std::string name;
+            std::string path;
+            std::string extension;
+        };
+
         Heaven_imgui_impl(HeavenWindow &window, HeavenVkDevice &device, VkRenderPass renderPass, uint32_t imageCount);
         ~Heaven_imgui_impl();
 
@@ -32,13 +40,18 @@ namespace heaven_engine {
 
         // Example state
         bool show_demo_window = false;
-        bool show_another_window = false;
+        bool show_model_browser = false;
         ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
         void runExample();
 
         auto runDebugMenu() -> void;
+        auto runAssetBrowser() -> void;
 
     private:
+
+        auto refreshAssets() -> void;
+        std::vector<AssetInfo> availableAssets;
+
         HeavenVkDevice &hvkDevice;
 
         HeavenWindow& gameWindow;

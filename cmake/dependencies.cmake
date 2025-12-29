@@ -48,5 +48,14 @@ FetchContent_MakeAvailable(glslang)
 FetchContent_Declare(
         imgui
         GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG docking)
+        GIT_TAG docking
+)
 FetchContent_MakeAvailable(imgui)
+
+# TinyObjLoader
+FetchContent_Declare(
+        tinyobjloader
+        GIT_REPOSITORY http://github.com/tinyobjloader/tinyobjloader.git
+        GIT_TAG v2.0.0rc13
+)
+FetchContent_MakeAvailable(tinyobjloader)
