@@ -5,11 +5,20 @@
 #pragma once
 #include "GameObject.h"
 #include "GLFW/glfw3.h"
+#include "game/GameConfigInfo.h"
 
 namespace heaven_engine {
-    class Keyboard_Movement_Controller {
+
+    class Movement_Controller {
 
     public:
+
+        struct Callback_Context {
+            GameConfigInfo& config;
+            GameObject& viewerObject; // what we traditionally call the "camera"
+            Movement_Controller& controller;
+        };
+
         struct KeyMappings {
             int moveLeft = GLFW_KEY_A;
             int moveRight = GLFW_KEY_D;
@@ -23,10 +32,17 @@ namespace heaven_engine {
             int lookDown = GLFW_KEY_DOWN;
         };
 
-        void moveInPlaneXZ(GLFWwindow* window, float deltaTime, GameObject& gameObject);
+        auto moveInPlaneXZ(GLFWwindow* window, float deltaTime, GameObject& gameObject) -> void;
+
+        static void keyInputCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+        static void mouseInputCallback(GLFWwindow * window, double xpos, double ypos);
 
         KeyMappings keys{};
         float movementSpeed = 3.0f;
         float lookSpeed = 1.5f;
+
+        double lastMouseX = 0.0, lastMouseY;
+        bool firstMouse = true;
     };
 } // heaven_engine

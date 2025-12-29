@@ -15,8 +15,9 @@
 
 #include <chrono>
 
+#include "GameConfigInfo.h"
 #include "graphics/integrations/Heaven_imgui_impl.h"
-#include "input/Keyboard_Movement_Controller.h"
+#include "input/Movement_Controller.h"
 
 namespace heaven_engine {
 
@@ -79,8 +80,6 @@ namespace heaven_engine {
         return std::make_unique<BasicModel>(device, vertices);
     }
 
-    bool imguiShouldRender = false;
-
     GameProgram::GameProgram() {
 
         loadObjects();
@@ -103,6 +102,8 @@ namespace heaven_engine {
 
     auto GameProgram::run() -> void {
 
+        GameConfigInfo gameConfigInfo{};
+
         auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(), renderer.getImageCount());
 
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
@@ -110,13 +111,16 @@ namespace heaven_engine {
         HvnCamera camera{};
 
         auto viewerObject = GameObject::createGameObject();
-        Keyboard_Movement_Controller cameraController{};
+        Movement_Controller cameraController{};
 
-        ::glfwSetKeyCallback(gameWindow.getWindowPtr(), [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-                imguiShouldRender = !imguiShouldRender;
-            }
-        });
+        Movement_Controller::Callback_Context callbackContext{gameConfigInfo, viewerObject, cameraController};
+
+        ::glfwSetWindowUserPointer(gameWindow.getWindowPtr(), &callbackContext);
+        ::glfwSetKeyCallback(gameWindow.getWindowPtr(), Movement_Controller::keyInputCallback);
+
+        ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        if (::glfwRawMouseMotionSupported()) ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        ::glfwSetCursorPosCallback(gameWindow.getWindowPtr(), Movement_Controller::mouseInputCallback);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -128,7 +132,7 @@ namespace heaven_engine {
             float frameTime = std::chrono::duration<float>(newTime - currentTime).count();
             currentTime = newTime;
 
-            if (!imguiShouldRender) {
+            if (!gameConfigInfo.imguiShouldOpen) {
                 cameraController.moveInPlaneXZ(gameWindow.getWindowPtr(), frameTime, viewerObject);
                 camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
             }
@@ -139,7 +143,7 @@ namespace heaven_engine {
 
             if (auto commandBuffer = renderer.beginFrame()) {
 
-                if (imguiShouldRender) {
+                if (gameConfigInfo.imguiShouldOpen) {
                     // start imgui rendering
                     imgui.newFrame();
                 }
@@ -153,7 +157,7 @@ namespace heaven_engine {
                 // subwindow
                 simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
-                if (imguiShouldRender) {
+                if (gameConfigInfo.imguiShouldOpen) {
                     // example code telling imgui what windows to render, and their contents
                     // this can be replaced with whatever code/classes you set up configuring your
                     // desired engine UI
