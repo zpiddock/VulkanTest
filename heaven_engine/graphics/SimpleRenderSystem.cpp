@@ -68,7 +68,11 @@ namespace heaven_engine {
             pipelineConfig);
     }
 
-    auto SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjs, const HvnCamera& camera) -> void {
+    auto SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject> &gameObjs) -> void {
+
+        auto commandBuffer = frameInfo.commandBuffer;
+        auto camera = frameInfo.camera;
+
         shaderPipeline->bind(commandBuffer);
 
         auto projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();

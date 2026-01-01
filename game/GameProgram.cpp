@@ -22,6 +22,11 @@
 
 namespace heaven_engine {
 
+    struct GlobalUbo {
+        glm::mat4 projectionView{1.f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, 3.f, -1.f});
+    };
+
     GameProgram::GameProgram() {
         loadObjects();
     }
@@ -41,6 +46,20 @@ namespace heaven_engine {
     }
 
     auto GameProgram::run() -> void {
+
+        // std::vector<std::unique_ptr<HeavenVkBuffer>> uboBuffers(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+        HeavenVkBuffer globalUboBuffer{
+            vulkanDevice,
+            sizeof(GlobalUbo),
+            HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            vulkanDevice.properties.limits.minUniformBufferOffsetAlignment
+        };
+
+        globalUboBuffer.map();
+
         GameConfigInfo gameConfigInfo{};
 
         auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(),
@@ -82,6 +101,23 @@ namespace heaven_engine {
             camera.setPerspectiveProjection(glm::radians(60.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = renderer.beginFrame()) {
+
+                int frameIndex = renderer.getCurrentFrameIndex();
+
+                FrameInfo frameInfo{
+                    frameIndex,
+                    frameTime,
+                    commandBuffer,
+                    camera
+                };
+
+                // update
+                GlobalUbo ubo{};
+                ubo.projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();
+                globalUboBuffer.writeToIndex(&ubo, frameIndex);
+                globalUboBuffer.flushIndex(frameIndex);
+
+                // Do rendering
                 if (gameConfigInfo.imguiShouldOpen) {
                     // start imgui rendering
                     imgui.newFrame();
@@ -94,7 +130,7 @@ namespace heaven_engine {
                 // Once we cover offscreen rendering, we can render the scene to a image/texture rather than
                 // directly to the swap chain. This texture of the scene can then be rendered to an imgui
                 // subwindow
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+                simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
 
                 if (gameConfigInfo.imguiShouldOpen) {
                     // example code telling imgui what windows to render, and their contents

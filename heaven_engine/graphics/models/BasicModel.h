@@ -11,6 +11,8 @@
 #include <graphics/HeavenVkDevice.h>
 #include <vulkan/vulkan_core.h>
 
+#include <graphics/HeavenVkBuffer.h>
+
 #include <utils/utils.h>
 
 namespace heaven_engine {
@@ -59,13 +61,12 @@ namespace heaven_engine {
         auto createIndexBuffer(const std::vector<uint32_t>& indices) -> void;
 
         HeavenVkDevice& device;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
+
+        std::unique_ptr<HeavenVkBuffer> vertexBuffer;
         uint32_t vertexCount;
 
         bool hasIndexBuffer = false;
-        VkBuffer indexBuffer;
-        VkDeviceMemory indexBufferMemory;
+        std::unique_ptr<HeavenVkBuffer> indexBuffer;
         uint32_t indexCount;
     };
 } // vulkangame

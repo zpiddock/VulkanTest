@@ -22,10 +22,9 @@
 #include <unordered_map>
 
 namespace std {
-
     template<>
     struct hash<heaven_engine::BasicModel::Vertex> {
-        size_t operator()(const heaven_engine::BasicModel::Vertex& vertex) const {
+        size_t operator()(const heaven_engine::BasicModel::Vertex &vertex) const {
             size_t seed = 0;
             heaven_engine::hashCombine(seed, vertex.position, vertex.colour, vertex.normal, vertex.uv);
             return seed;
@@ -34,26 +33,15 @@ namespace std {
 }
 
 namespace heaven_engine {
-
-    BasicModel::BasicModel(HeavenVkDevice &device, const ModelData& modelData) : device{device} {
-
+    BasicModel::BasicModel(HeavenVkDevice &device, const ModelData &modelData) : device{device} {
         createVertexBuffer(modelData.vertices);
         createIndexBuffer(modelData.indices);
     }
 
     BasicModel::~BasicModel() {
-
-        ::vkDestroyBuffer(device.device(), vertexBuffer, nullptr);
-        ::vkFreeMemory(device.device(), vertexBufferMemory, nullptr);
-
-        if (hasIndexBuffer) {
-            ::vkDestroyBuffer(device.device(), indexBuffer, nullptr);
-            ::vkFreeMemory(device.device(), indexBufferMemory, nullptr);
-        }
     }
 
     std::vector<VkVertexInputBindingDescription> BasicModel::Vertex::getBindingDescriptions() {
-
         std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
         bindingDescriptions[0].binding = 0;
         bindingDescriptions[0].stride = sizeof(Vertex);
@@ -62,7 +50,6 @@ namespace heaven_engine {
     }
 
     std::vector<VkVertexInputAttributeDescription> BasicModel::Vertex::getAttributeDescriptions() {
-
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
         attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});
@@ -75,25 +62,20 @@ namespace heaven_engine {
 
 
     auto BasicModel::begin(VkCommandBuffer commandBuffer) -> void {
-
         if (hasIndexBuffer) {
-
             ::vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
         } else {
-
             ::vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
         }
     }
 
     auto BasicModel::bind(VkCommandBuffer commandBuffer) -> void {
-
-        VkBuffer buffers[] = {vertexBuffer};
+        VkBuffer buffers[] = {vertexBuffer->getBuffer()};
         VkDeviceSize offsets[] = {0};
         ::vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 
         if (hasIndexBuffer) {
-
-            ::vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+            ::vkCmdBindIndexBuffer(commandBuffer, indexBuffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
 
@@ -103,32 +85,27 @@ namespace heaven_engine {
         assert(vertexCount >= 3 && "Vertex count must be above 3");
         VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
 
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
+        uint32_t vertexSize = sizeof(vertices[0]);
 
-        device.createBuffer(
-            bufferSize,
+        HeavenVkBuffer stagingBuffer{
+            device,
+            vertexSize,
+            vertexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            stagingBuffer,
-            stagingBufferMemory);
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        };
 
-        void* data;
-        ::vkMapMemory(device.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        ::memcpy(data, vertices.data(), bufferSize);
-        ::vkUnmapMemory(device.device(), stagingBufferMemory);
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void*) vertices.data());
 
-        device.createBuffer(
-            bufferSize,
+        vertexBuffer = std::make_unique<HeavenVkBuffer>(device,
+            vertexSize,
+            vertexCount,
             VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            vertexBuffer,
-            vertexBufferMemory);
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            );
 
-        device.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
-
-        ::vkDestroyBuffer(device.device(), stagingBuffer, nullptr);
-        ::vkFreeMemory(device.device(), stagingBufferMemory, nullptr);
+        device.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
     }
 
     auto BasicModel::createIndexBuffer(const std::vector<uint32_t> &indices) -> void {
@@ -140,38 +117,33 @@ namespace heaven_engine {
         if (!hasIndexBuffer) return;
 
         VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
+        uint32_t indexSize = sizeof(indices[0]);
 
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-
-        device.createBuffer(
-            bufferSize,
+        HeavenVkBuffer stagingBuffer{
+            device,
+            indexSize,
+            indexCount,
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            stagingBuffer,
-            stagingBufferMemory);
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        };
 
-        void* data;
-        ::vkMapMemory(device.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        ::memcpy(data, indices.data(), bufferSize);
-        ::vkUnmapMemory(device.device(), stagingBufferMemory);
+        stagingBuffer.map();
+        stagingBuffer.writeToBuffer((void*) indices.data());
 
-        device.createBuffer(
-            bufferSize,
+        indexBuffer = std::make_unique<HeavenVkBuffer>(
+            device,
+            indexSize,
+            indexCount,
             VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            indexBuffer,
-            indexBufferMemory);
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            );
 
-        device.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
 
-        ::vkDestroyBuffer(device.device(), stagingBuffer, nullptr);
-        ::vkFreeMemory(device.device(), stagingBufferMemory, nullptr);
+        device.copyBuffer(stagingBuffer.getBuffer(), indexBuffer->getBuffer(), bufferSize);
     }
 
     auto BasicModel::createFromFile(HeavenVkDevice &device,
-        const std::string &filepath) -> std::unique_ptr<BasicModel> {
-
+                                    const std::string &filepath) -> std::unique_ptr<BasicModel> {
         ModelData data{};
         data.loadFromFile(filepath);
 
@@ -181,14 +153,12 @@ namespace heaven_engine {
     }
 
     auto BasicModel::ModelData::loadFromFile(const std::string &filepath) -> void {
-
         tinyobj::attrib_t attrib;
         std::vector<tinyobj::shape_t> shapes;
         std::vector<tinyobj::material_t> materials;
         std::string warn;
         std::string err;
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) {
-
             throw std::runtime_error(warn + err);
         }
 
@@ -197,10 +167,8 @@ namespace heaven_engine {
 
         std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
-        for (const auto &shape : shapes) {
-
-            for (const auto &index : shape.mesh.indices) {
-
+        for (const auto &shape: shapes) {
+            for (const auto &index: shape.mesh.indices) {
                 Vertex vertex{};
 
                 if (index.vertex_index >= 0) {
@@ -233,7 +201,6 @@ namespace heaven_engine {
                 }
 
                 if (!uniqueVertices.contains(vertex)) {
-
                     uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
                     vertices.push_back(vertex);
                 }

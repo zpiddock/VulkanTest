@@ -8,4 +8,5 @@ target_sources(${ENGINE_NAME} PUBLIC
         HeavenRenderer.cpp
         SimpleRenderSystem.cpp
         HvnCamera.cpp
+        HeavenVkBuffer.cpp
 )

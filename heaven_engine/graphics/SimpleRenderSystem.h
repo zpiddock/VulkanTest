@@ -8,6 +8,7 @@
 #include <graphics/HeavenShaderPipeline.h>
 #include <graphics/models/BasicModel.h>
 
+#include "HeavenFrameInfo.h"
 #include "HvnCamera.h"
 
 namespace heaven_engine {
@@ -21,7 +22,7 @@ namespace heaven_engine {
         SimpleRenderSystem(const SimpleRenderSystem&) = delete;
         SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-        auto renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject>& gameObjs, const HvnCamera& camera) -> void;
+        auto renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject>& gameObjs) -> void;
 
     private:
         auto createPipeline(VkRenderPass renderPass) -> void;
