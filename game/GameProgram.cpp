@@ -21,13 +21,18 @@
 #include "input/Movement_Controller.h"
 
 namespace heaven_engine {
-
     struct GlobalUbo {
         glm::mat4 projectionView{1.f};
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, 3.f, -1.f});
+        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
     };
 
     GameProgram::GameProgram() {
+        globalDescriptorPool = HvnDescriptorPool::Builder(vulkanDevice)
+                .setMaxSets(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT)
+                .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+                .build();
+
         loadObjects();
     }
 
@@ -35,20 +40,23 @@ namespace heaven_engine {
     }
 
     auto GameProgram::loadObjects() -> void {
-
         std::shared_ptr model = BasicModel::createFromFile(vulkanDevice, "assets/models/smooth_vase.obj");
+        std::shared_ptr model2 = BasicModel::createFromFile(vulkanDevice, "assets/models/colored_cube.obj");
 
-        auto object = GameObject::createGameObject();
-        object.model = model;
-        object.transform.translation = {0.f, 0.f, 2.5f};
-        object.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.push_back(std::move(object));
+        auto vase = GameObject::createGameObject();
+        vase.model = model;
+        vase.transform.translation = {0.f, 0.f, 2.5f};
+        vase.transform.scale = {0.5f, 0.5f, 0.5f};
+        gameObjects.push_back(std::move(vase));
+
+        auto cube = GameObject::createGameObject();
+        cube.model = model;
+        cube.transform.translation = {-1.f, 0.f, 2.5f};
+        cube.transform.scale = {0.5f, 0.5f, 0.5f};
+        gameObjects.push_back(std::move(cube));
     }
 
     auto GameProgram::run() -> void {
-
-        // std::vector<std::unique_ptr<HeavenVkBuffer>> uboBuffers(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
-
         HeavenVkBuffer globalUboBuffer{
             vulkanDevice,
             sizeof(GlobalUbo),
@@ -60,12 +68,25 @@ namespace heaven_engine {
 
         globalUboBuffer.map();
 
+        auto globalSetLayout = HvnDescriptorSetLayout::Builder(vulkanDevice)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+        .build();
+
+        std::vector<VkDescriptorSet> globalDescriptorSets(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
+
+        for (auto & descriptorSet : globalDescriptorSets) {
+
+            auto bufferInfo = globalUboBuffer.descriptorInfo();
+            HvnDescriptorWriter(*globalSetLayout, *globalDescriptorPool)
+            .writeBuffer(0, &bufferInfo)
+            .build(descriptorSet);
+        }
         GameConfigInfo gameConfigInfo{};
 
         auto imgui = Heaven_imgui_impl(gameWindow, vulkanDevice, renderer.getSwapChainRenderPass(),
                                        renderer.getImageCount());
 
-        SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass()};
+        SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 
         HvnCamera camera{};
 
@@ -78,8 +99,9 @@ namespace heaven_engine {
         inputManager.addSubscriber(&cameraController);
 
         ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        if (::glfwRawMouseMotionSupported()) ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION,
-                                                                GLFW_TRUE);
+        if (::glfwRawMouseMotionSupported())
+            ::glfwSetInputMode(gameWindow.getWindowPtr(), GLFW_RAW_MOUSE_MOTION,
+                               GLFW_TRUE);
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -101,14 +123,14 @@ namespace heaven_engine {
             camera.setPerspectiveProjection(glm::radians(60.0f), aspect, 0.1f, 10.0f);
 
             if (auto commandBuffer = renderer.beginFrame()) {
-
                 int frameIndex = renderer.getCurrentFrameIndex();
 
                 FrameInfo frameInfo{
                     frameIndex,
                     frameTime,
                     commandBuffer,
-                    camera
+                    camera,
+                    globalDescriptorSets[frameIndex]
                 };
 
                 // update

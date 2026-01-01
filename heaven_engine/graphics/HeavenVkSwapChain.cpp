@@ -14,7 +14,7 @@ namespace heaven_engine {
   }
 
   HeavenVkSwapChain::HeavenVkSwapChain(HeavenVkDevice &deviceRef, VkExtent2D windowExtent,
-    std::shared_ptr<HeavenVkSwapChain> previousSwapChain)
+    const std::shared_ptr<HeavenVkSwapChain> &previousSwapChain)
       : device {deviceRef}, windowExtent{windowExtent}, oldSwapChain{previousSwapChain}{
     init();
 

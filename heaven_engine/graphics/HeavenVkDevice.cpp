@@ -29,9 +29,9 @@ namespace heaven_engine {
         const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
         const VkAllocationCallbacks *pAllocator,
         VkDebugUtilsMessengerEXT *pDebugMessenger) {
-        auto func = (PFN_vkCreateDebugUtilsMessengerEXT) ::vkGetInstanceProcAddr(
+        auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(::vkGetInstanceProcAddr(
             instance,
-            "vkCreateDebugUtilsMessengerEXT");
+            "vkCreateDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
         } else {
@@ -43,9 +43,9 @@ namespace heaven_engine {
         VkInstance instance,
         VkDebugUtilsMessengerEXT debugMessenger,
         const VkAllocationCallbacks *pAllocator) {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+        auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
             instance,
-            "vkDestroyDebugUtilsMessengerEXT");
+            "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) {
             func(instance, debugMessenger, pAllocator);
         }

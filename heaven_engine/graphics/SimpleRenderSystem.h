@@ -16,7 +16,7 @@ namespace heaven_engine {
 
     public:
 
-        SimpleRenderSystem(HeavenVkDevice& device, VkRenderPass renderPass);
+        SimpleRenderSystem(HeavenVkDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
         ~SimpleRenderSystem();
 
         SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -26,7 +26,7 @@ namespace heaven_engine {
 
     private:
         auto createPipeline(VkRenderPass renderPass) -> void;
-        auto createPipelineLayout() -> void;
+        auto createPipelineLayout(VkDescriptorSetLayout globalSetLayout) -> void;
 
         HeavenVkDevice& vulkanDevice;
         std::unique_ptr<HeavenShaderPipeline> shaderPipeline;

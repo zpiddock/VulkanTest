@@ -14,5 +14,6 @@ namespace heaven_engine {
         float frameTime;
         VkCommandBuffer commandBuffer;
         HvnCamera& camera;
+        VkDescriptorSet globalDescriptorSet;
     };
 }
