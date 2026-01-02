@@ -8,6 +8,10 @@ set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
 set(ENABLE_HLSL OFF CACHE BOOL "" FORCE)
 set(ENABLE_OPT OFF CACHE BOOL "" FORCE)
 
+# Disable Glslang tests
+set(SKIP_GLSLANG_INSTALL ON CACHE BOOL "" FORCE)
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
+
 #Fetch GLFW
 include(FetchContent)
 FetchContent_Declare(
@@ -33,14 +37,6 @@ FetchContent_Declare(
         GIT_TAG ${SPIRV_HEADERS_VERSION}
 )
 FetchContent_MakeAvailable(spirv-headers)
-
-# SPIRV-Tools
-FetchContent_Declare(
-        spirv-tools
-        GIT_REPOSITORY https://github.com/KhronosGroup/SPIRV-Tools.git
-        GIT_TAG ${SPIRV_TOOLS_VERSION}
-)
-FetchContent_MakeAvailable(spirv-tools)
 
 # GLSLang
 FetchContent_Declare(
