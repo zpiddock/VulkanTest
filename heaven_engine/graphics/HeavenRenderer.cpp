@@ -22,6 +22,31 @@ namespace heaven_engine {
         freeCommandBuffers();
     }
 
+
+
+    auto HeavenRenderer::recreateSwapChain() -> void {
+
+        auto extent = gameWindow.getExtent();
+        while (extent.width == 0 || extent.height == 0) {
+
+            extent = gameWindow.getExtent();
+            ::glfwWaitEvents();
+        }
+
+        ::vkDeviceWaitIdle(vulkanDevice.device());
+
+        if (vulkanSwapChain == nullptr) {
+            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent);
+        } else {
+            std::shared_ptr oldSwapChain = std::move(vulkanSwapChain);
+            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent, oldSwapChain);
+
+            if (!oldSwapChain->compareSwapFormats(*vulkanSwapChain)) {
+                throw std::runtime_error("Swap chain image or depth format has changed!");
+            }
+        }
+    }
+
     auto HeavenRenderer::createCommandBuffers() -> void {
 
         commandBuffers.resize(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -45,29 +70,6 @@ namespace heaven_engine {
 
         ::vkFreeCommandBuffers(vulkanDevice.device(), vulkanDevice.getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
         commandBuffers.clear();
-    }
-
-    auto HeavenRenderer::recreateSwapChain() -> void {
-
-        auto extent = gameWindow.getExtent();
-        while (extent.width == 0 || extent.height == 0) {
-
-            extent = gameWindow.getExtent();
-            ::glfwWaitEvents();
-        }
-
-        ::vkDeviceWaitIdle(vulkanDevice.device());
-
-        if (vulkanSwapChain == nullptr) {
-            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent);
-        } else {
-            std::shared_ptr oldSwapChain = std::move(vulkanSwapChain);
-            vulkanSwapChain = std::make_unique<HeavenVkSwapChain>(vulkanDevice, extent, oldSwapChain);
-
-            if (!oldSwapChain->compareSwapFormats(*vulkanSwapChain)) {
-                throw std::runtime_error("Swap chain image or depth format has changed!");
-            }
-        }
     }
 
     auto HeavenRenderer::beginFrame() -> VkCommandBuffer {
