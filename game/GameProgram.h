@@ -35,6 +35,6 @@ namespace heaven_engine {
         HeavenRenderer renderer{gameWindow, vulkanDevice};
         std::unique_ptr<HvnDescriptorPool> globalDescriptorPool{};
 
-        std::vector<GameObject> gameObjects;
+        GameObject::Map gameObjects;
     };
 }

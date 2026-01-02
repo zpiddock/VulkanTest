@@ -65,7 +65,7 @@ namespace heaven_engine {
             pipelineConfig);
     }
 
-    auto SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject> &gameObjs) -> void {
+    auto SimpleRenderSystem::renderGameObjects(FrameInfo &frameInfo) -> void {
         auto commandBuffer = frameInfo.commandBuffer;
 
         shaderPipeline->bind(commandBuffer);
@@ -79,7 +79,9 @@ namespace heaven_engine {
                                   0,
                                   nullptr);
 
-        for (auto &obj: gameObjs) {
+        for (auto &kvPair: frameInfo.gameObjects) {
+            auto &obj = kvPair.second;
+            if (obj.model == nullptr) continue;
             SimplePushConstantData push{};
             push.modelMatrix = obj.transform.mat4();
             push.normalMatrix = obj.transform.normalMatrix();

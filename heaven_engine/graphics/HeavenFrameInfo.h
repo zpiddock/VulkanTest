@@ -15,5 +15,6 @@ namespace heaven_engine {
         VkCommandBuffer commandBuffer;
         HvnCamera& camera;
         VkDescriptorSet globalDescriptorSet;
+        GameObject::Map &gameObjects;
     };
 }

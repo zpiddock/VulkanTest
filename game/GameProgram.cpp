@@ -50,19 +50,19 @@ namespace heaven_engine {
         vase.model = model;
         vase.transform.translation = {0.f, 0.f, 0.f};
         vase.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.push_back(std::move(vase));
+        gameObjects.emplace(vase.getId(), std::move(vase));
 
         auto flat_vase = GameObject::createGameObject();
         flat_vase.model = model2;
-        flat_vase.transform.translation = {-1.f, 0.f, 0.f};
+        flat_vase.transform.translation = {-0.5f, 0.f, 0.f};
         flat_vase.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.push_back(std::move(flat_vase));
+        gameObjects.emplace(flat_vase.getId(), std::move(flat_vase));
 
         auto floor = GameObject::createGameObject();
         floor.model = quad_model;
-        floor.transform.translation = {0.f, 0.5f, 0.f};
+        floor.transform.translation = {0.f, 0.f, 0.f};
         floor.transform.scale = {3.f, 1.f, 3.f};
-        gameObjects.push_back(std::move(floor));
+        gameObjects.emplace(floor.getId(), std::move(floor));
     }
 
     auto GameProgram::run() -> void {
@@ -78,7 +78,7 @@ namespace heaven_engine {
         globalUboBuffer.map();
 
         auto globalSetLayout = HvnDescriptorSetLayout::Builder(vulkanDevice)
-        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS)
         .build();
 
         std::vector<VkDescriptorSet> globalDescriptorSets(HeavenVkSwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -140,7 +140,8 @@ namespace heaven_engine {
                     frameTime,
                     commandBuffer,
                     camera,
-                    globalDescriptorSets[frameIndex]
+                    globalDescriptorSets[frameIndex],
+                    gameObjects
                 };
 
                 // update
@@ -162,7 +163,7 @@ namespace heaven_engine {
                 // Once we cover offscreen rendering, we can render the scene to a image/texture rather than
                 // directly to the swap chain. This texture of the scene can then be rendered to an imgui
                 // subwindow
-                simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
+                simpleRenderSystem.renderGameObjects(frameInfo);
 
                 if (gameConfigInfo.imguiShouldOpen) {
                     // example code telling imgui what windows to render, and their contents

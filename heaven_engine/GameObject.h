@@ -29,6 +29,7 @@ namespace heaven_engine {
 
     public:
         using id_t = unsigned int;
+        using Map = std::unordered_map<id_t, GameObject>;
 
         static auto createGameObject() -> GameObject {
             static id_t currentId = 0;

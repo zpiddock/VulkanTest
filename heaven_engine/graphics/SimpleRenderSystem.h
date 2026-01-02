@@ -22,7 +22,7 @@ namespace heaven_engine {
         SimpleRenderSystem(const SimpleRenderSystem&) = delete;
         SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-        auto renderGameObjects(FrameInfo &frameInfo, std::vector<GameObject>& gameObjs) -> void;
+        auto renderGameObjects(FrameInfo &frameInfo) -> void;
 
     private:
         auto createPipeline(VkRenderPass renderPass) -> void;
