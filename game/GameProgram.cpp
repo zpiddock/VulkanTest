@@ -23,7 +23,9 @@
 namespace heaven_engine {
     struct GlobalUbo {
         glm::mat4 projectionView{1.f};
-        glm::vec3 lightDirection = glm::normalize(glm::vec3{1.f, -3.f, -1.f});
+        glm::vec4 ambientLightColour{1.f, 1.f, 1.f, .02f};
+        glm::vec4 lightPosition{-1.f};
+        glm::vec4 lightColor{1.f};
     };
 
     GameProgram::GameProgram() {
@@ -41,19 +43,26 @@ namespace heaven_engine {
 
     auto GameProgram::loadObjects() -> void {
         std::shared_ptr model = BasicModel::createFromFile(vulkanDevice, "assets/models/smooth_vase.obj");
-        std::shared_ptr model2 = BasicModel::createFromFile(vulkanDevice, "assets/models/colored_cube.obj");
+        std::shared_ptr model2 = BasicModel::createFromFile(vulkanDevice, "assets/models/flat_vase.obj");
+        std::shared_ptr quad_model = BasicModel::createFromFile(vulkanDevice, "assets/models/quad.obj");
 
         auto vase = GameObject::createGameObject();
         vase.model = model;
-        vase.transform.translation = {0.f, 0.f, 2.5f};
+        vase.transform.translation = {0.f, 0.f, 0.f};
         vase.transform.scale = {0.5f, 0.5f, 0.5f};
         gameObjects.push_back(std::move(vase));
 
-        auto cube = GameObject::createGameObject();
-        cube.model = model;
-        cube.transform.translation = {-1.f, 0.f, 2.5f};
-        cube.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.push_back(std::move(cube));
+        auto flat_vase = GameObject::createGameObject();
+        flat_vase.model = model2;
+        flat_vase.transform.translation = {-1.f, 0.f, 0.f};
+        flat_vase.transform.scale = {0.5f, 0.5f, 0.5f};
+        gameObjects.push_back(std::move(flat_vase));
+
+        auto floor = GameObject::createGameObject();
+        floor.model = quad_model;
+        floor.transform.translation = {0.f, 0.5f, 0.f};
+        floor.transform.scale = {3.f, 1.f, 3.f};
+        gameObjects.push_back(std::move(floor));
     }
 
     auto GameProgram::run() -> void {
@@ -91,6 +100,7 @@ namespace heaven_engine {
         HvnCamera camera{};
 
         auto viewerObject = GameObject::createGameObject();
+        viewerObject.transform.translation.z = -2.5f;
 
         InputManager inputManager{gameWindow};
 

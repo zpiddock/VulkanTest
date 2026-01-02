@@ -36,9 +36,6 @@ namespace heaven_engine {
         ShaderWatcher vertexWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.vert"), EShLangVertex};
         ShaderWatcher fragWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.frag"), EShLangFragment};
 
-        // auto vertexCode = compileShader(shaderFilepath, "vert");
-        // auto fragmentCode = compileShader(shaderFilepath, "frag");
-
         createShaderModule(vertexWatcher.spirv, &vertModule);
         createShaderModule(fragWatcher.spirv, &fragModule);
 
