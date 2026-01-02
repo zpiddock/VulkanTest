@@ -5,6 +5,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_vulkan.h>
 
+#include "heaven_engine/graphics/HeavenDescriptors.h"
+
 // std
 #include <filesystem>
 #include <stdexcept>
@@ -30,15 +32,17 @@ namespace heaven_engine {
             {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
             {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}
         };
-        VkDescriptorPoolCreateInfo pool_info = {};
-        pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-        pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
-        pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
-        pool_info.pPoolSizes = pool_sizes;
-        if (::vkCreateDescriptorPool(device.device(), &pool_info, nullptr, &descriptorPool) != VK_SUCCESS) {
-            throw std::runtime_error("failed to set up descriptor pool for imgui");
+
+        auto descriptorBuilder = HvnDescriptorPool::Builder(device)
+        .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+        .setMaxSets(1000 * IM_ARRAYSIZE(pool_sizes));
+
+        for (VkDescriptorPoolSize poolSize : pool_sizes) {
+
+            descriptorBuilder.addPoolSize(poolSize.type, poolSize.descriptorCount);
         }
+
+        imguiDescriptorPool = descriptorBuilder.build();
 
         // Setup Dear ImGui context
         IMGUI_CHECKVERSION();
@@ -65,7 +69,7 @@ namespace heaven_engine {
 
         // pipeline cache is a potential future optimization, ignoring for now
         init_info.PipelineCache = VK_NULL_HANDLE;
-        init_info.DescriptorPool = descriptorPool;
+        init_info.DescriptorPool = imguiDescriptorPool->getDescriptorPool();
         // todo, I should probably get around to integrating a memory allocator library such as Vulkan
         // memory allocator (VMA) sooner than later. We don't want to have to update adding an allocator
         // in a ton of locations.
@@ -108,7 +112,6 @@ namespace heaven_engine {
     }
 
     Heaven_imgui_impl::~Heaven_imgui_impl() {
-        ::vkDestroyDescriptorPool(hvkDevice.device(), descriptorPool, nullptr);
         ::ImGui_ImplVulkan_Shutdown();
         ::ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -180,4 +183,4 @@ namespace heaven_engine {
     void Heaven_imgui_impl::runExample() {
 
     }
-} // namespace lve
+} // namespace heaven_engine

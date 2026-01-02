@@ -56,7 +56,7 @@ namespace heaven_engine {
             Builder &addPoolSize(VkDescriptorType descriptorType, uint32_t count);
             Builder &setPoolFlags(VkDescriptorPoolCreateFlags flags);
             Builder &setMaxSets(uint32_t count);
-            std::unique_ptr<HvnDescriptorPool> build() const;
+            [[nodiscard]] std::unique_ptr<HvnDescriptorPool> build() const;
 
         private:
             HeavenVkDevice &vkDevice;
@@ -80,6 +80,8 @@ namespace heaven_engine {
         void freeDescriptors(std::vector<VkDescriptorSet> &descriptors) const;
 
         void resetPool();
+
+        VkDescriptorPool getDescriptorPool() const { return descriptorPool; }
 
     private:
         HeavenVkDevice &vkDevice;

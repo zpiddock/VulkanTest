@@ -7,7 +7,9 @@
 
 // std
 #include <stdexcept>
+#include <memory>
 
+#include "graphics/HeavenDescriptors.h"
 #include "graphics/HeavenVkDevice.h"
 
 // This whole class is only necessary right now because it needs to manage the descriptor pool
@@ -56,10 +58,6 @@ namespace heaven_engine {
 
         HeavenWindow& gameWindow;
 
-        // We haven't yet covered descriptor pools in the tutorial series
-        // so I'm just going to create one for just imgui and store it here for now.
-        // maybe its preferred to have a separate descriptor pool for imgui anyway,
-        // I haven't looked into imgui best practices at all.
-        VkDescriptorPool descriptorPool;
+        std::unique_ptr<HvnDescriptorPool> imguiDescriptorPool;
     };
 }  // namespace lve
