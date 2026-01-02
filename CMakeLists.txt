@@ -48,6 +48,10 @@ add_subdirectory(game)
 set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
+
 # --------------------
 # Runtime Copy Assets Dir
 # --------------------
@@ -57,9 +61,24 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
 
-install(TARGETS ${PROJECT_NAME} DESTINATION "./")
-install(TARGETS ${ENGINE_NAME} DESTINATION "./")
-install(DIRECTORY "${PROJECT_SOURCE_DIR}/assets" DESTINATION "./assets")
+set(CPACK_INSTALL_CMAKE_PROJECTS
+        "${CMAKE_BINARY_DIR};${PROJECT_NAME};ALL;/"
+)
+
+install(TARGETS ${PROJECT_NAME}
+        RUNTIME DESTINATION .
+)
+
+install(TARGETS ${ENGINE_NAME}
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION .
+)
+
+install(TARGETS imguilib
+        RUNTIME DESTINATION .
+        LIBRARY DESTINATION .
+)
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/assets" DESTINATION .)
 
 set(CPACK_PACKAGE_NAME "heaven_engine")
 set(CPACK_PACKAGE_VERSION "0.0.1")
