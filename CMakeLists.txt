@@ -25,7 +25,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 # Standard Dependencies
 include(dependencies)
 # Shaderc gets it's own file
-include(shaderc_fetch)
+#include(shaderc_fetch)
 
 # --------------------
 # IMGUI Library
@@ -49,20 +49,13 @@ set(CMAKE_SHARED_LIBRARY_PREFIX "")
 set(CMAKE_STATIC_LIBRARY_PREFIX "")
 
 # --------------------
-# Runtime Shaderc DLL copy
+# Runtime Copy Assets Dir
 # --------------------
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "$<TARGET_FILE_DIR:shaderc_shared>/$<TARGET_FILE_NAME:shaderc_shared>"
-        $<TARGET_FILE_DIR:${ENGINE_NAME}>
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
+                COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PROJECT_SOURCE_DIR}/assets"
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
 )
-
-# Optionally include shaderc DLL for runtime
-install(FILES "$<TARGET_FILE:shaderc_shared>"
-        DESTINATION bin)
 
 install(TARGETS ${PROJECT_NAME} DESTINATION "./")
 install(TARGETS ${ENGINE_NAME} DESTINATION "./")

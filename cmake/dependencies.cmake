@@ -2,6 +2,12 @@
 # We need to have Vulkan
 find_package(Vulkan REQUIRED)
 
+# Set options
+set(ENABLE_SPVREMAPPER OFF CACHE BOOL "" FORCE)
+set(ENABLE_GLSLANG_BINARIES OFF CACHE BOOL "" FORCE)
+set(ENABLE_HLSL OFF CACHE BOOL "" FORCE)
+set(ENABLE_OPT OFF CACHE BOOL "" FORCE)
+
 #Fetch GLFW
 include(FetchContent)
 FetchContent_Declare(

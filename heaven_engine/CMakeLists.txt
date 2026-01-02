@@ -16,7 +16,8 @@ target_link_libraries(${ENGINE_NAME} PUBLIC
         glfw
         Vulkan::Vulkan
         glm::glm
-        shaderc_shared
+        glslang
+        SPIRV
         imguilib
         tinyobjloader
 )

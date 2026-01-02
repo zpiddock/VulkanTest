@@ -41,10 +41,8 @@ namespace heaven_engine {
             static auto defaultPipelineConfigInfo(PipelineConfigInfo& configInfo) -> void;
 
         private:
-            auto readFile(const std::string& shaderFilepath, const std::string& shaderType) -> std::string;
             auto createGraphicsPipeline(const std::string& shaderFilepath, const PipelineConfigInfo& configInfo) -> void;
 
-            auto compileShader(const std::string& shaderFilepath, const std::string& shaderType) -> std::vector<uint32_t>;
             auto createShaderModule(const std::vector<uint32_t>& shaderCode, VkShaderModule* shaderModule) -> void;
 
             HeavenVkDevice& vulkanDevice;

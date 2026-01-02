@@ -8,10 +8,9 @@
 #include <fstream>
 #include <filesystem>
 #include <format>
-#include <iostream>
-#include <shaderc/shaderc.hpp>
 
 #include "models/BasicModel.h"
+#include "shader/shader_watcher.h"
 
 namespace heaven_engine {
 
@@ -19,7 +18,6 @@ namespace heaven_engine {
         const std::string& shaderPipelinePath,
         const PipelineConfigInfo& configInfo) : vulkanDevice(device) {
 
-        // Eventually we will runtime compile, for now we use the existing compiled shaders
         createGraphicsPipeline(shaderPipelinePath, configInfo);
     }
 
@@ -30,62 +28,19 @@ namespace heaven_engine {
         ::vkDestroyPipeline(vulkanDevice.device(), pipeline, nullptr);
     }
 
-    auto HeavenShaderPipeline::compileShader(
-        const std::string &shaderFilepath,
-        const std::string &shaderType) -> std::vector<uint32_t> {
-
-        std::string source = readFile(shaderFilepath, shaderType);
-
-        shaderc_shader_kind kind = {};
-
-        if (shaderType == "vert") kind = shaderc_vertex_shader;
-        if (shaderType == "frag") kind = shaderc_fragment_shader;
-
-        shaderc::Compiler compiler;
-        shaderc::CompileOptions options;
-
-        options.SetOptimizationLevel(shaderc_optimization_level_performance);
-
-        shaderc::SpvCompilationResult module =
-            compiler.CompileGlslToSpv(source, kind, shaderFilepath.c_str(), options);
-
-        if (module.GetCompilationStatus() != shaderc_compilation_status_success) {
-            throw std::runtime_error("Shader compilation failed (" + shaderFilepath + "): " +
-                                     module.GetErrorMessage());
-        }
-
-        std::cout << std::format("Compiled shader {} of type {}", shaderFilepath, shaderType) << "\n";
-
-        return std::vector(module.cbegin(), module.cend());
-    }
-
-    auto HeavenShaderPipeline::readFile(const std::string& shaderName, const std::string& shaderType) -> std::string {
+    auto HeavenShaderPipeline::createGraphicsPipeline(const std::string &shaderFilepath, const PipelineConfigInfo &configInfo) -> void {
 
         auto assetsDirectory = std::format("{}/assets/shaders", std::filesystem::current_path().string());
 
-        std::ifstream file(std::format("{}/{}/{}.{}", assetsDirectory, shaderName, shaderName, shaderType),
-            std::ios::in);
+        // Hard code for now, implement loading from filePath later
+        ShaderWatcher vertexWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.vert"), EShLangVertex};
+        ShaderWatcher fragWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.frag"), EShLangFragment};
 
-        if (!file.is_open()) {
+        // auto vertexCode = compileShader(shaderFilepath, "vert");
+        // auto fragmentCode = compileShader(shaderFilepath, "frag");
 
-            throw std::runtime_error("Failed to open shader file: " + shaderName);
-        }
-
-        std::stringstream ss;
-        ss << file.rdbuf();
-        return ss.str();
-    }
-
-    auto HeavenShaderPipeline::createGraphicsPipeline(const std::string &shaderFilepath, const PipelineConfigInfo &configInfo) -> void {
-
-        // auto vertexCode = readFile(shaderFilepath, "vert");
-        // auto fragmentCode = readFile(shaderFilepath,"frag");
-
-        auto vertexCode = compileShader(shaderFilepath, "vert");
-        auto fragmentCode = compileShader(shaderFilepath, "frag");
-
-        createShaderModule(vertexCode, &vertModule);
-        createShaderModule(fragmentCode, &fragModule);
+        createShaderModule(vertexWatcher.spirv, &vertModule);
+        createShaderModule(fragWatcher.spirv, &fragModule);
 
         VkPipelineShaderStageCreateInfo shaderStages[2];
         shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
