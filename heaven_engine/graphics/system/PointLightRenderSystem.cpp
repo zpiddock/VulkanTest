@@ -11,12 +11,11 @@
 #include <GameObject.h>
 #include <iostream>
 
-#include <glm/gtc/constants.hpp>
-
 namespace heaven_engine {
-    struct SimplePushConstantData {
-        glm::mat4 modelMatrix{1.f};
-        glm::mat4 normalMatrix{1.f};
+    struct PointLightPushConstants {
+        glm::vec4 position{};
+        glm::vec4 color{};
+        float radius{};
     };
 
     PointLightRenderSystem::PointLightRenderSystem(HeavenVkDevice &device, VkRenderPass renderPass,
@@ -30,10 +29,10 @@ namespace heaven_engine {
     }
 
     auto PointLightRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout) -> void {
-        // VkPushConstantRange pushConstantRange{};
-        // pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        // pushConstantRange.offset = 0;
-        // pushConstantRange.size = sizeof(SimplePushConstantData);
+        VkPushConstantRange pushConstantRange{};
+        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        pushConstantRange.offset = 0;
+        pushConstantRange.size = sizeof(PointLightPushConstants);
 
         std::vector setLayouts{globalSetLayout};
 
@@ -41,8 +40,8 @@ namespace heaven_engine {
         pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutCreateInfo.setLayoutCount = static_cast<uint32_t>(setLayouts.size());
         pipelineLayoutCreateInfo.pSetLayouts = setLayouts.data();
-        pipelineLayoutCreateInfo.pushConstantRangeCount = 0;
-        pipelineLayoutCreateInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+        pipelineLayoutCreateInfo.pPushConstantRanges = &pushConstantRange;
 
         if (::vkCreatePipelineLayout(
                 vulkanDevice.device(),
@@ -67,6 +66,25 @@ namespace heaven_engine {
             pipelineConfig);
     }
 
+    auto PointLightRenderSystem::update(FrameInfo &frameInfo, GlobalUbo &ubo) -> void {
+
+        auto rotate = glm::rotate(glm::mat4(1.f), frameInfo.frameTime, glm::vec3(0.f, 1.f, 0.f));
+
+        int lightIndex = 0;
+        for (auto &kvPair : frameInfo.gameObjects) {
+            auto &gameObject = kvPair.second;
+            if (gameObject.pointLight == nullptr) continue;
+
+            //update light translation
+            gameObject.transform.translation = glm::vec3(rotate * glm::vec4(gameObject.transform.translation, 1.f));
+
+            ubo.pointLights[lightIndex].position = glm::vec4(gameObject.transform.translation, 1.f);
+            ubo.pointLights[lightIndex].colour = glm::vec4(gameObject.colour, gameObject.pointLight->lightIntensity);
+            lightIndex += 1;
+        }
+        ubo.numLights = lightIndex;
+    }
+
     auto PointLightRenderSystem::render(FrameInfo &frameInfo) -> void {
         auto commandBuffer = frameInfo.commandBuffer;
 
@@ -81,7 +99,24 @@ namespace heaven_engine {
                                   0,
                                   nullptr);
 
-        //draw point light
-        ::vkCmdDraw(commandBuffer, 6, 1, 0, 0);
+        for (auto &kvPair : frameInfo.gameObjects) {
+            auto &gameObject = kvPair.second;
+            if (gameObject.pointLight == nullptr) continue;
+
+            PointLightPushConstants pushConstants{};
+            pushConstants.position = glm::vec4(gameObject.transform.translation, 1.f);
+            pushConstants.color = glm::vec4(gameObject.colour, gameObject.pointLight->lightIntensity);
+            pushConstants.radius = gameObject.transform.scale.x;
+
+            ::vkCmdPushConstants(commandBuffer,
+                                 pipelineLayout,
+                                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                                 0,
+                                 sizeof(PointLightPushConstants),
+                                 &pushConstants);
+            //draw point light
+            ::vkCmdDraw(commandBuffer, 6, 1, 0, 0);
+        }
+
     }
 } // heaven_engine

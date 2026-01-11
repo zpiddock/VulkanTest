@@ -22,6 +22,7 @@ namespace heaven_engine {
         PointLightRenderSystem(const PointLightRenderSystem&) = delete;
         PointLightRenderSystem& operator=(const PointLightRenderSystem&) = delete;
 
+        auto update(FrameInfo &frameInfo, GlobalUbo &ubo) -> void;
         auto render(FrameInfo &frameInfo) -> void;
 
     private:

@@ -22,13 +22,6 @@
 #include "input/Movement_Controller.h"
 
 namespace heaven_engine {
-    struct GlobalUbo {
-        glm::mat4 projection{1.f};
-        glm::mat4 view{1.f};
-        glm::vec4 ambientLightColour{1.f, 1.f, 1.f, .02f};
-        glm::vec4 lightPosition{-1.f};
-        glm::vec4 lightColor{1.f};
-    };
 
     GameProgram::GameProgram() {
         globalDescriptorPool = HvnDescriptorPool::Builder(vulkanDevice)
@@ -47,24 +40,53 @@ namespace heaven_engine {
         std::shared_ptr model = BasicModel::createFromFile(vulkanDevice, "assets/models/smooth_vase.obj");
         std::shared_ptr model2 = BasicModel::createFromFile(vulkanDevice, "assets/models/flat_vase.obj");
         std::shared_ptr quad_model = BasicModel::createFromFile(vulkanDevice, "assets/models/quad.obj");
+        std::shared_ptr kayle_model = BasicModel::createFromFile(vulkanDevice, "assets/models/Kayle_sculpt1.obj");
 
-        auto vase = GameObject::createGameObject();
-        vase.model = model;
-        vase.transform.translation = {0.f, 0.f, 0.f};
-        vase.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.emplace(vase.getId(), std::move(vase));
+        // auto vase = GameObject::createGameObject();
+        // vase.model = model;
+        // vase.transform.translation = {0.f, 0.f, 0.f};
+        // vase.transform.scale = {0.5f, 0.5f, 0.5f};
+        // gameObjects.emplace(vase.getId(), std::move(vase));
+        //
+        // auto flat_vase = GameObject::createGameObject();
+        // flat_vase.model = model2;
+        // flat_vase.transform.translation = {-0.5f, 0.f, 0.f};
+        // flat_vase.transform.scale = {0.5f, 0.5f, 0.5f};
+        // gameObjects.emplace(flat_vase.getId(), std::move(flat_vase));
 
-        auto flat_vase = GameObject::createGameObject();
-        flat_vase.model = model2;
-        flat_vase.transform.translation = {-0.5f, 0.f, 0.f};
-        flat_vase.transform.scale = {0.5f, 0.5f, 0.5f};
-        gameObjects.emplace(flat_vase.getId(), std::move(flat_vase));
+        auto kayle = GameObject::createGameObject();
+        kayle.model = kayle_model;
+        kayle.transform.translation = {0.f, 0.f, 0.f};
+        kayle.transform.rotation = glm::vec3{glm::radians(180.f), 0.f, 0.f};
+        kayle.transform.scale = {0.5f, 0.5f, 0.5f};
+        gameObjects.emplace(kayle.getId(), std::move(kayle));
 
         auto floor = GameObject::createGameObject();
         floor.model = quad_model;
         floor.transform.translation = {0.f, 0.1f, 0.f};
         floor.transform.scale = {3.f, 1.f, 3.f};
         gameObjects.emplace(floor.getId(), std::move(floor));
+
+        std::vector<glm::vec3> lightColors{
+          {1.f, .1f, .1f},
+          {.1f, .1f, 1.f},
+          {.1f, 1.f, .1f},
+          {1.f, 1.f, .1f},
+          {.1f, 1.f, 1.f},
+          {1.f, 1.f, 1.f}  //
+        };
+
+        for (int i = 0; i < lightColors.size(); i++) {
+
+            auto pointLight = GameObject::createPointLight(0.2f);
+            pointLight.colour = lightColors[i];
+
+            auto rotate = glm::rotate(glm::mat4(1.f), (i * glm::two_pi<float>()) / static_cast<float>(lightColors.size()), glm::vec3(0.f, 1.f, 0.f));
+            pointLight.transform.translation = glm::vec3(rotate * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+            gameObjects.emplace(pointLight.getId(), std::move(pointLight));
+        }
+
+
     }
 
     auto GameProgram::run() -> void {
@@ -151,6 +173,7 @@ namespace heaven_engine {
                 GlobalUbo ubo{};
                 ubo.projection = camera.getProjectionMatrix();
                 ubo.view = camera.getViewMatrix();
+                pointLightRenderSystem.update(frameInfo, ubo);
                 globalUboBuffer.writeToIndex(&ubo, frameIndex);
                 globalUboBuffer.flushIndex(frameIndex);
 

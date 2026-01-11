@@ -27,6 +27,7 @@ namespace heaven_engine {
             res.limits.generalSamplerIndexing = true;
             res.limits.generalVariableIndexing = true;
             res.limits.generalConstantMatrixVectorIndexing = true;
+            res.limits.nonInductiveForLoops = true;
             return res;
         }();
         return r;

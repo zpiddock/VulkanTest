@@ -25,6 +25,9 @@ namespace heaven_engine {
         glm::mat3 normalMatrix();
     };
 
+    struct PointLightComponent {
+        float lightIntensity = 1.f;
+    };
     class GameObject {
 
     public:
@@ -36,6 +39,8 @@ namespace heaven_engine {
             return GameObject{currentId++};
         };
 
+        static auto createPointLight(float intensity = 10.f, float radius = 0.05f, glm::vec3 colour = glm::vec3(1.f)) -> GameObject;
+
         GameObject(const GameObject&) = delete;
         GameObject& operator=(const GameObject&) = delete;
         GameObject(GameObject&&) = default;
@@ -43,9 +48,12 @@ namespace heaven_engine {
 
         auto getId() -> id_t const { return id; }
 
-        std::shared_ptr<BasicModel> model;
-        glm::vec3 colour;
+        glm::vec3 colour{};
+
         TransformComponent transform{};
+
+        std::shared_ptr<BasicModel> model{};
+        std::unique_ptr<PointLightComponent> pointLight = nullptr;
 
     private:
 

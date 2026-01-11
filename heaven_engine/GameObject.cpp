@@ -66,4 +66,14 @@ namespace heaven_engine {
                 }
         };
     }
+
+    auto GameObject::createPointLight(float intensity, float radius, glm::vec3 colour) -> GameObject {
+
+        auto gameObj = createGameObject();
+        gameObj.colour = colour;
+        gameObj.transform.scale.x = radius;
+        gameObj.pointLight = std::make_unique<PointLightComponent>();
+        gameObj.pointLight->lightIntensity = intensity;
+        return gameObj;
+    }
 }
