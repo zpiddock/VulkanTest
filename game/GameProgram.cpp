@@ -10,7 +10,7 @@
 
 #include <heaven_engine/GameObject.h>
 #include <heaven_engine/graphics/models/BasicModel.h>
-#include <heaven_engine/graphics/SimpleRenderSystem.h>
+#include <heaven_engine/graphics/system/SimpleRenderSystem.h>
 
 #include <string>
 
@@ -18,11 +18,13 @@
 
 #include "GameConfigInfo.h"
 #include "graphics/integrations/Heaven_imgui_impl.h"
+#include "graphics/system/PointLightRenderSystem.h"
 #include "input/Movement_Controller.h"
 
 namespace heaven_engine {
     struct GlobalUbo {
-        glm::mat4 projectionView{1.f};
+        glm::mat4 projection{1.f};
+        glm::mat4 view{1.f};
         glm::vec4 ambientLightColour{1.f, 1.f, 1.f, .02f};
         glm::vec4 lightPosition{-1.f};
         glm::vec4 lightColor{1.f};
@@ -60,7 +62,7 @@ namespace heaven_engine {
 
         auto floor = GameObject::createGameObject();
         floor.model = quad_model;
-        floor.transform.translation = {0.f, 0.f, 0.f};
+        floor.transform.translation = {0.f, 0.1f, 0.f};
         floor.transform.scale = {3.f, 1.f, 3.f};
         gameObjects.emplace(floor.getId(), std::move(floor));
     }
@@ -96,6 +98,7 @@ namespace heaven_engine {
                                        renderer.getImageCount());
 
         SimpleRenderSystem simpleRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
+        PointLightRenderSystem pointLightRenderSystem{vulkanDevice, renderer.getSwapChainRenderPass(), globalSetLayout->getDescriptorSetLayout()};
 
         HvnCamera camera{};
 
@@ -146,7 +149,8 @@ namespace heaven_engine {
 
                 // update
                 GlobalUbo ubo{};
-                ubo.projectionView = camera.getProjectionMatrix() * camera.getViewMatrix();
+                ubo.projection = camera.getProjectionMatrix();
+                ubo.view = camera.getViewMatrix();
                 globalUboBuffer.writeToIndex(&ubo, frameIndex);
                 globalUboBuffer.flushIndex(frameIndex);
 
@@ -164,6 +168,7 @@ namespace heaven_engine {
                 // directly to the swap chain. This texture of the scene can then be rendered to an imgui
                 // subwindow
                 simpleRenderSystem.renderGameObjects(frameInfo);
+                pointLightRenderSystem.render(frameInfo);
 
                 if (gameConfigInfo.imguiShouldOpen) {
                     // example code telling imgui what windows to render, and their contents

@@ -4,8 +4,7 @@
 #pragma once
 
 #include <graphics/HvnCamera.h>
-
-#include "HeavenVkBuffer.h"
+#include <GameObject.h>
 
 namespace heaven_engine {
 

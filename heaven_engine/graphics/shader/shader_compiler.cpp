@@ -21,6 +21,12 @@ namespace heaven_engine {
             res.maxDrawBuffers = 8;
             res.maxVertexOutputComponents = 64;
             res.maxFragmentInputComponents = 64;
+            res.limits.generalUniformIndexing = true;
+            res.limits.generalAttributeMatrixVectorIndexing = true;
+            res.limits.generalVaryingIndexing = true;
+            res.limits.generalSamplerIndexing = true;
+            res.limits.generalVariableIndexing = true;
+            res.limits.generalConstantMatrixVectorIndexing = true;
             return res;
         }();
         return r;

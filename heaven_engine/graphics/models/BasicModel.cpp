@@ -61,7 +61,7 @@ namespace heaven_engine {
     }
 
 
-    auto BasicModel::begin(VkCommandBuffer commandBuffer) -> void {
+    auto BasicModel::draw(VkCommandBuffer commandBuffer) -> void {
         if (hasIndexBuffer) {
             ::vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
         } else {

@@ -52,7 +52,7 @@ namespace heaven_engine {
         BasicModel& operator=(const BasicModel&) = delete;
 
         auto bind(VkCommandBuffer commandBuffer) -> void;
-        auto begin(VkCommandBuffer commandBuffer) -> void;
+        auto draw(VkCommandBuffer commandBuffer) -> void;
 
         static auto createFromFile(HeavenVkDevice& device, const std::string& filepath) -> std::unique_ptr<BasicModel>;
 

@@ -8,8 +8,8 @@
 #include <graphics/HeavenShaderPipeline.h>
 #include <graphics/models/BasicModel.h>
 
-#include "HeavenFrameInfo.h"
-#include "HvnCamera.h"
+#include "../HeavenFrameInfo.h"
+#include "../HvnCamera.h"
 
 namespace heaven_engine {
     class SimpleRenderSystem {

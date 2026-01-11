@@ -94,7 +94,7 @@ namespace heaven_engine {
                                  sizeof(SimplePushConstantData),
                                  &push);
             obj.model->bind(commandBuffer);
-            obj.model->begin(commandBuffer);
+            obj.model->draw(commandBuffer);
         }
     }
 } // heaven_engine

@@ -14,6 +14,8 @@ namespace heaven_engine {
         PipelineConfigInfo(const PipelineConfigInfo& configInfo) = delete;
         PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
+        std::vector<VkVertexInputBindingDescription> vertexInputBindingDescriptions;
+        std::vector<VkVertexInputAttributeDescription> vertexInputAttributeDescriptions;
         VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;

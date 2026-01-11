@@ -33,8 +33,8 @@ namespace heaven_engine {
         auto assetsDirectory = std::format("{}/assets/shaders", std::filesystem::current_path().string());
 
         // Hard code for now, implement loading from filePath later
-        ShaderWatcher vertexWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.vert"), EShLangVertex};
-        ShaderWatcher fragWatcher{std::format("{}/{}", assetsDirectory,"simple_shader/simple_shader.frag"), EShLangFragment};
+        ShaderWatcher vertexWatcher{std::format("{}/{}.vert", assetsDirectory, shaderFilepath), EShLangVertex};
+        ShaderWatcher fragWatcher{std::format("{}/{}.frag", assetsDirectory, shaderFilepath), EShLangFragment};
 
         createShaderModule(vertexWatcher.spirv, &vertModule);
         createShaderModule(fragWatcher.spirv, &fragModule);
@@ -55,8 +55,8 @@ namespace heaven_engine {
         shaderStages[1].pNext = nullptr;
         shaderStages[1].pSpecializationInfo = nullptr;
 
-        auto bindingDescriptions = BasicModel::Vertex::getBindingDescriptions();
-        auto attributeDescriptions = BasicModel::Vertex::getAttributeDescriptions();
+        auto& bindingDescriptions = configInfo.vertexInputBindingDescriptions;
+        auto& attributeDescriptions = configInfo.vertexInputAttributeDescriptions;
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -170,6 +170,9 @@ namespace heaven_engine {
         configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
         configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
         configInfo.dynamicStateInfo.flags = 0;
+
+        configInfo.vertexInputBindingDescriptions = BasicModel::Vertex::getBindingDescriptions();
+        configInfo.vertexInputAttributeDescriptions = BasicModel::Vertex::getAttributeDescriptions();
     }
 
     auto HeavenShaderPipeline::createShaderModule(const std::vector<uint32_t> &shaderCode, VkShaderModule* shaderModule) -> void {

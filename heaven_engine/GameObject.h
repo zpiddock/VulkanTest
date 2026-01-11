@@ -33,7 +33,7 @@ namespace heaven_engine {
 
         static auto createGameObject() -> GameObject {
             static id_t currentId = 0;
-            return GameObject(currentId++);
+            return GameObject{currentId++};
         };
 
         GameObject(const GameObject&) = delete;
